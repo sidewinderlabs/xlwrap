@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:sc="http://sw.deri.org/2007/07/sitemapextension/scschema.xsd">
+  <sc:dataset>
+    <sc:datasetLabel>__TITLE__</sc:datasetLabel>
+    <sc:linkedDataPrefix>http://__HOSTNAME____PORT__/resource/</sc:linkedDataPrefix>
+    <sc:sparqlEndpointLocation>__SPARQLENDPOINT__</sc:sparqlEndpointLocation>
+    
+    <sc:datasetURI>http://__HOSTNAME____PORT__/void/__SPARQLPATH__</sc:datasetURI><!-- based on patched Joseki which serves voiD data at "void/<service-ref>" -->
+    <changefreq>always</changefreq>
+  </sc:dataset>
+</urlset>

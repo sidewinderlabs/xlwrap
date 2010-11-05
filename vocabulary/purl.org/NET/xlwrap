@@ -1,0 +1,225 @@
+<rdf:RDF
+    xmlns="http://purl.org/NET/xlwrap#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:ja="http://jena.hpl.hp.com/2005/11/Assembler#">
+  <rdfs:Datatype rdf:about="http://purl.org/NET/xlwrap#Expr">
+    <rdfs:comment>Represents an XLWrap Expression, which is evaluated during the mapping process. Expressions are used in named template graphs in the TriG file. The documentation for expressions can be found at http://xlwrap.sourceforge.net/</rdfs:comment>
+    <rdfs:label>XLWrap Expression</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+  </rdfs:Datatype>
+  <rdfs:Class rdf:about="http://purl.org/NET/xlwrap#Mapping">
+    <required rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >true</required>
+    <rdfs:comment>Represents a formal mapping from spreadsheets to RDF graphs; contains multiple MapTemplates</rdfs:comment>
+    <rdfs:label>XLWrap mapping</rdfs:label>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://purl.org/NET/xlwrap#XLWrapDataset">
+    <ja:assembler>at.jku.xlwrap.dataset.XLWrapDatasetAssembler</ja:assembler>
+    <rdfs:comment>Jena Assemler specification for a virtual XLWrap dataset</rdfs:comment>
+    <rdfs:label>Virtual XLWrap dataset</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://jena.hpl.hp.com/2005/11/Assembler#RDFDataset"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://purl.org/NET/xlwrap#ParseProfile">
+    <rdfs:comment>A profile used to parse CSV files</rdfs:comment>
+    <rdfs:label>Parse profile</rdfs:label>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://purl.org/NET/xlwrap#Transformation">
+    <rdfs:comment>Abstract super class of transformations</rdfs:comment>
+    <rdfs:label>XLWrap transformation</rdfs:label>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://purl.org/NET/xlwrap#MapTemplate">
+    <required rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >true</required>
+    <rdfs:comment>Represents a single mapping from spreadsheets to one RDF graph; can be applied multiple times by adding transform operations</rdfs:comment>
+    <rdfs:label>XLWrap mapping template</rdfs:label>
+  </rdfs:Class>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#repeat">
+    <default rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >2147483647</default>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    <rdfs:domain>
+      <Transformation rdf:about="http://purl.org/NET/xlwrap#Shift">
+        <rdfs:comment>Abstract super class of shift transformations</rdfs:comment>
+        <rdfs:label>XLWrap shift transformation</rdfs:label>
+      </Transformation>
+    </rdfs:domain>
+    <rdfs:comment>Repeat times</rdfs:comment>
+    <rdfs:label>repeat times</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#template">
+    <required rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >true</required>
+    <rdfs:range rdf:resource="http://purl.org/NET/xlwrap#MapTemplate"/>
+    <rdfs:domain rdf:resource="http://purl.org/NET/xlwrap#Mapping"/>
+    <rdfs:comment>associates map templates to mappings; the property is used multiple times to specify templates</rdfs:comment>
+    <rdfs:label>has template</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#fileName">
+    <required rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >true</required>
+    <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Resource"/>
+    <rdfs:domain rdf:resource="http://purl.org/NET/xlwrap#MapTemplate"/>
+    <rdfs:comment>references a spreadsheet file URI, e.g. file:// or http://...; this is the base filename for relative cell references</rdfs:comment>
+    <rdfs:label>spreadsheet file location</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#uri">
+    <rdfs:range rdf:resource="http://purl.org/NET/xlwrap#Expr"/>
+    <rdfs:domain rdf:resource="http://www.w3.org/2000/01/rdf-schema#Resource"/>
+    <rdfs:comment>Used to assign a dynamic URI to an RDF resource based on a xl:Expr.</rdfs:comment>
+    <rdfs:Label>XLWrap resource URI</rdfs:Label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#transform">
+    <rdfs:range rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Seq"/>
+    <rdfs:domain rdf:resource="http://purl.org/NET/xlwrap#MapTemplate"/>
+    <rdfs:comment>a sequence of transformations which will be executed in order; elements must be valid instances of xl:Transformation</rdfs:comment>
+    <rdfs:label>transformation sequence</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#steps">
+    <default rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >1</default>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    <rdfs:domain rdf:resource="http://purl.org/NET/xlwrap#Shift"/>
+    <rdfs:comment>Shift steps in terms of columns, rows, or sheets</rdfs:comment>
+    <rdfs:label>shift steps</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#cacheDir">
+    <required rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >true</required>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="http://purl.org/NET/xlwrap#XLWrapDataset"/>
+    <rdfs:comment>cache directory property specified in dataset assembler configuration</rdfs:comment>
+    <rdfs:label>cache directory</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#breakCondition">
+    <rdfs:range rdf:resource="http://purl.org/NET/xlwrap#Expr"/>
+    <rdfs:domain rdf:resource="http://purl.org/NET/xlwrap#Transformation"/>
+    <rdfs:comment>An xl:Expr, which is evaluated each time before the template is transformed. Breaks the transform operation if false and resumes with the next stage from the previous transform.</rdfs:comment>
+    <rdfs:label>break condition</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#templateGraph">
+    <required rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >true</required>
+    <rdfs:range rdf:parseType="Resource">
+      <rdfs:comment>a named graph in the TriG file</rdfs:comment>
+    </rdfs:range>
+    <rdfs:domain rdf:resource="http://purl.org/NET/xlwrap#MapTemplate"/>
+    <rdfs:comment>the template graph of the mapping template; contains xl:Expr to reference cells; is specified directly in the mapping file as named graphs</rdfs:comment>
+    <rdfs:label>template graph</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#functionLib">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="http://purl.org/NET/xlwrap#Mapping"/>
+    <rdfs:comment>a custom function library (java package) to load</rdfs:comment>
+    <rdfs:label>function library</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#fileNames">
+    <required rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >true</required>
+    <rdfs:range rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Seq"/>
+    <rdfs:domain>
+      <Transformation rdf:about="http://purl.org/NET/xlwrap#FileRepeat">
+        <rdfs:comment>Applies the template graph to a set of files</rdfs:comment>
+        <rdfs:label>File repeat transformation</rdfs:label>
+      </Transformation>
+    </rdfs:domain>
+    <rdfs:comment>Sequence of files for the xl:FileRepeat transformation; elements must be plain literals specifying existing file names</rdfs:comment>
+    <rdfs:label>File sequence</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#parseProfile">
+    <rdfs:range rdf:resource="http://purl.org/NET/xlwrap#ParseProfile"/>
+    <rdfs:domain rdf:resource="http://purl.org/NET/xlwrap#MapTemplate"/>
+    <rdfs:comment>NOT YET SUPPORTED!!! WILL AUTO-DETECT - the value must be a valid instance of xl:ParseProfile defined by this vocabulary</rdfs:comment>
+    <rdfs:label>associated parse profile</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#id">
+    <rdfs:range rdf:resource="http://purl.org/NET/xlwrap#Expr"/>
+    <rdfs:domain rdf:resource="http://www.w3.org/2000/01/rdf-schema#Resource"/>
+    <rdfs:comment>Can be used to link blank nodes in a template graph.</rdfs:comment>
+    <rdfs:label>Anonymous link label</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#restriction">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="http://purl.org/NET/xlwrap#Transformation"/>
+    <rdfs:comment>Restricts the transformation to a multi range (ranges separated by semicolons)</rdfs:comment>
+    <rdfs:label>restriction</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#offline">
+    <default rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</default>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    <rdfs:domain rdf:resource="http://purl.org/NET/xlwrap#Mapping"/>
+    <rdfs:comment>if offline is true, the mapping will not be processed by XLWrap-Server</rdfs:comment>
+    <rdfs:label>set mapping offline</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#sheetNames">
+    <required rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >true</required>
+    <rdfs:range rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Seq"/>
+    <rdfs:domain>
+      <Transformation rdf:about="http://purl.org/NET/xlwrap#SheetRepeat">
+        <rdfs:comment>Applies the template graph to a set of sheets</rdfs:comment>
+        <rdfs:label>Sheet repeat transformation</rdfs:label>
+      </Transformation>
+    </rdfs:domain>
+    <rdfs:domain>Sequence of sheets for the xl:SheetRepeat transformation; elements must be plain literals specifying existing sheet names</rdfs:domain>
+    <rdfs:label>Sheet sequence</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#sheetNumber">
+    <required rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >true</required>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    <rdfs:domain rdf:resource="http://purl.org/NET/xlwrap#MapTemplate"/>
+    <rdfs:comment>number of a sheet in a spreadsheet workbook; this is the base sheet for relative cell references; either this one or sheetName is required</rdfs:comment>
+    <rdfs:label>sheet number</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#sheetName">
+    <required rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >true</required>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="http://purl.org/NET/xlwrap#MapTemplate"/>
+    <rdfs:comment>named sheet of a spreadsheet workbook; this is the base sheet for relative cell references; either this one or sheetNumber is required</rdfs:comment>
+    <rdfs:label>sheet name</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#constantGraph">
+    <rdfs:range rdf:parseType="Resource">
+      <rdfs:comment>a named graph in the TriG file</rdfs:comment>
+    </rdfs:range>
+    <rdfs:domain rdf:resource="http://purl.org/NET/xlwrap#MapTemplate"/>
+    <rdfs:comment>a constant graph is included into the target graph once, xl:Expr expressions are evaluated</rdfs:comment>
+    <rdfs:label>constant graph</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#watchDir">
+    <required rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >true</required>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="http://purl.org/NET/xlwrap#XLWrapDataset"/>
+    <rdfs:comment>watch directory property specified in dataset assembler configuration</rdfs:comment>
+    <rdfs:label>watch directory</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/NET/xlwrap#skipCondition">
+    <rdfs:range rdf:resource="http://purl.org/NET/xlwrap#Expr"/>
+    <rdfs:domain rdf:resource="http://purl.org/NET/xlwrap#Transformation"/>
+    <rdfs:comment>An xl:Expr, which is evaluated each time before a template is applied. Skips generation of triples if false and resumes.</rdfs:comment>
+    <rdfs:label>skip condition</rdfs:label>
+  </rdf:Property>
+  <ParseProfile rdf:about="http://purl.org/NET/xlwrap#semicolon_unquoted"/>
+  <Shift rdf:about="http://purl.org/NET/xlwrap#ColShift">
+    <rdfs:comment>Shifts the template graph at the column axis</rdfs:comment>
+    <rdfs:label>Column shift transformation</rdfs:label>
+  </Shift>
+  <Shift rdf:about="http://purl.org/NET/xlwrap#SheetShift">
+    <rdfs:comment>Shifts the template graph at the sheet axis</rdfs:comment>
+    <rdfs:label>Sheet shift transformation</rdfs:label>
+  </Shift>
+  <ParseProfile rdf:about="http://purl.org/NET/xlwrap#semicolon_quoted"/>
+  <Shift rdf:about="http://purl.org/NET/xlwrap#RowShift">
+    <rdfs:comment>Shifts the template graph at the row axis</rdfs:comment>
+    <rdfs:label>Row shift transformation</rdfs:label>
+  </Shift>
+  <ParseProfile rdf:about="http://purl.org/NET/xlwrap#tab_unquoted"/>
+  <ParseProfile rdf:about="http://purl.org/NET/xlwrap#comma_quoted"/>
+  <ParseProfile rdf:about="http://purl.org/NET/xlwrap#comma_unquoted"/>
+  <ParseProfile rdf:about="http://purl.org/NET/xlwrap#tab_quoted"/>
+</rdf:RDF>

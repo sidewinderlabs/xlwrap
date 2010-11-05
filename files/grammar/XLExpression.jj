@@ -1,0 +1,383 @@
+/**
+ * Copyright 2009 Andreas Langegger, andreas@langegger.at, Austria
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+options {
+  LOOKAHEAD = 1;
+  CHOICE_AMBIGUITY_CHECK = 2;
+  OTHER_AMBIGUITY_CHECK = 1;
+  STATIC = true;
+  DEBUG_PARSER = false;
+  DEBUG_LOOKAHEAD = false;
+  DEBUG_TOKEN_MANAGER = false;
+  ERROR_REPORTING = true;
+  JAVA_UNICODE_ESCAPE = false;
+  UNICODE_INPUT = false;
+  IGNORE_CASE = false;
+  USER_TOKEN_MANAGER = false;
+  USER_CHAR_STREAM = false;
+  BUILD_PARSER = true;
+  BUILD_TOKEN_MANAGER = true;
+  SANITY_CHECK = true;
+  FORCE_LA_CHECK = false;
+}
+
+
+PARSER_BEGIN(XLExpression)
+
+package at.jku.xlwrap.map.expr.parser;
+
+import at.jku.xlwrap.common.XLWrapException;
+import at.jku.xlwrap.map.expr.*;
+import at.jku.xlwrap.map.expr.val.*;
+import at.jku.xlwrap.map.expr.func.*;
+import java.io.Reader;
+import java.io.StringReader;
+
+/** XLWrap Expression Parser */
+@SuppressWarnings("all") // suppress compiler warnings
+public class XLExpression {
+	private static XLExpression initialized = null;
+
+	/** a main for isolated testing of the parser */
+	public static void main(String args[]) throws ParseException {
+		XLExpression parser = new XLExpression(System.in);
+		XLExpr e = parser.XLExpression();
+		System.out.println("OK: " + e);
+	}
+
+	public static XLExpr parse(String input) throws ParseException {
+		if (initialized == null)
+			initialized = new XLExpression(new StringReader(input));
+		else
+			XLExpression.ReInit(new StringReader(input));
+		return XLExpression.XLExpression();
+	}
+}
+
+PARSER_END(XLExpression)
+
+
+SKIP :
+{
+ " "
+| "\t"
+| "\n"
+| "\r"
+| "\f"
+}
+
+TOKEN :
+{
+// simple tokens
+	< PLUS: "+" >
+|	< MINUS: "-" >
+|	< MUL: "*" > //TODO => * conflicts with range-asteriks
+|	< DIV: "/" >
+|	< PERCENT: "%" >
+|	< POW: "^" >
+|	< LT: "<" >
+|	< LE: "<=" >
+|	< GE: ">=" >
+|	< GT: ">" >
+|	< NE: "!=" | "<>" >
+|	< EQ1: "=" >
+|	< EQ2: "==" >
+|	< OR: "||" >
+|	< AND: "&&" >
+|	< NOT: "!" >
+|	< TRUE: ( "true" | "TRUE" ) >
+|	< FALSE: ( "false" | "FALSE" ) >
+
+|	< INT: (["0"-"9"])+ >
+|	< DEC:
+        (["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)?
+      | (["0"-"9"])+ "," (["0"-"9"])* (["0"-"9"] | <EXPONENT>)
+      | [".",","] (["0"-"9"])+ (<EXPONENT>)?
+      | (["0"-"9"])+ <EXPONENT> >
+|	< #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
+
+|	< CELLRANGE: <SUBRANGE> ( ";" <SUBRANGE> )* > // according to definition in Utils.parseRange();
+|	< #SUBRANGE: (
+		( <FILEURL> "#" )?									// optional filename/URL (in single/double/without quotes)
+		( ("$")? ( <SHEET> | "*" )  "." )?					// optional sheet1 or "*" for "any sheet"
+		(										
+			(								// range or "*" for "any range"
+				(["A"-"Z","a"-"z"])+ (["0"-"9"])+ 			// mandatory col1/row1
+				(
+					":"										// optional "to"-range
+					( ("$")? <SHEET> "." )?					// optional sheet2 (including suffix ".")
+					(["A"-"Z","a"-"z"])+ (["0"-"9"])+		// col2/row2
+				)?
+			) |
+			"*"								// "any range"
+		)
+	) >
+|	< #SHEET: (
+		("#" <INT> ) |										// by number: eg. #4.
+		(
+			(["'"]  (~[".","'"])*  ["'"])  |				// or by name: e.g. 'Sheet1.'
+			(["\""] (~[".","\""])* ["\""]) |				// or "Sheet1."
+			(~[" ",".","\"","'","(",")","*",":","#"])+		// or without quotes, may not contain certain chars => more restrictive than Utils.parseRange()! Must not contain "(" and ")"...
+		)
+	) >
+|	< #FILEURL: (
+		("'" (~["'","#"])* "'" )
+		| ("\"" (~["\"","#"])* "\"" )
+		| (~[" ",".","\"","'","(",")","*",":","#"])+
+	) >
+
+|	< FUNCIDENT: (
+        (["A"-"Z","a"-"z","_"])+
+        (["A"-"Z","a"-"z","_","0"-"9"])*
+        (["A"-"Z","a"-"z","_"])+
+    ) > // (["A"-"Z","a"-"z","_","0"-"9"])* > careful with numbers, otherwise cannot decide between FUNCIDENT and CELLRANGE
+
+|	< CONSTIDENT: "$"(["A"-"Z","a"-"z","_","0"-"9"])+ >
+
+|	< SQ_STRING:
+		"'"
+	      (   (~["'","\\","\n","\r"])
+	        | ("\\"
+	            ( ["n","t","b","r","f","\\","'","\""]
+	            | ["0"-"7"] ( ["0"-"7"] )?
+	            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+	            )
+	          )
+	      )*
+	      "'" >
+|	< DQ_STRING:
+	      "\""
+	      (   (~["\"","\\","\n","\r"])
+	        | ("\\"
+	            ( ["n","t","b","r","f","\\","'","\""]
+	            | ["0"-"7"] ( ["0"-"7"] )?
+	            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+	            )
+	          )
+	      )*
+	      "\"" >		
+}
+
+/* main non-terminals */
+
+XLExpr XLExpression() :
+{
+	XLExpr e;
+}
+{
+	(<EQ1>) ?
+	e = OrExpr()
+	<EOF>
+	{ return e; }
+}
+
+XLExpr OrExpr() :
+{
+	XLExpr e, other;
+}
+{
+	e = AndExpr()
+	(
+		<OR>
+		other = AndExpr()		{ e = new E_LogicalOr(e, other); }
+	)*
+	{ return e; }
+}
+
+XLExpr AndExpr() :
+{
+	XLExpr e, other;
+}
+{
+	e = Comparable()
+	(
+		<AND>
+		other = Comparable()		{ e = new E_LogicalAnd(e, other); }
+	)*
+	{ return e; }
+}	
+
+XLExpr Comparable() :
+{
+	XLExpr e, other;
+	E_Compare compOp;
+}
+{
+	e = Concatable()
+	(
+		compOp = CompOp(e)
+		other = Concatable()			{ compOp.setArg2(other); e = compOp; }
+	)*
+	{ return e; }
+}
+
+XLExpr Concatable() :
+{
+	XLExpr e, sub;
+}
+{
+	e = Expr()
+	(
+		"&"
+		sub = Expr()					{ e = new E_Concat(e, sub); }
+	)*
+	{ return e; }
+}
+
+XLExpr Expr() :
+{
+	XLExpr e;
+	XLExpr2 e2;
+	XLExpr sub;
+}
+{
+	e = Term()
+	(
+		(
+		<PLUS>				{ e2 = new E_Add(e, null); }
+		| <MINUS>			{ e2 = new E_Substract(e, null); }
+		)
+		sub = Term()		{ e2.setArg2(sub); e = e2; }
+	)*
+	{ return e; }
+}
+
+XLExpr Term() :
+{
+	XLExpr e;
+	XLExpr2 e2;
+	XLExpr sub;
+}
+{
+	e = Factor()
+	(
+		(
+		<MUL>				{ e2 = new E_Multiply(e, null); }
+		| <DIV>				{ e2 = new E_Divide(e, null); }
+		)
+		sub = Factor()		{ e2.setArg2(sub); e = e2; }
+	)*
+	{ return e; }
+}
+
+XLExpr Factor() :
+{
+	XLExpr e;
+	XLExpr2 e2;
+	XLExpr sub;
+}
+{
+	e = Atom()
+	(
+		<POW>			{ e2 = new E_Power(e, null); }
+		sub = Atom()	{ e2.setArg2(sub); e = e2; }
+	)*
+	{ return e; }
+}
+
+XLExpr Atom() :
+{
+	boolean neg = false;
+	boolean not = false;
+	boolean percent = false;
+
+	XLExpr e, sub;
+	XLExprFunction func;
+	Token t;
+}
+{
+	( <PLUS> | <MINUS>		{ neg = true; }	)?
+	( <NOT>					{ not = true; } )?
+
+	(
+		LOOKAHEAD(2)	
+		(
+			// number		
+			( t = <INT>				{ e = new E_Long(t.image); }
+			| t = <DEC>				{ e = new E_Double(t.image); }
+			)
+			( <PERCENT>				{ percent = true; } )?
+		)
+		| (
+			// boolean value
+			( t = <TRUE>				{ e = E_Boolean.TRUE; }
+			| t = <FALSE>			{ e = E_Boolean.FALSE; }
+			)
+		)
+		| t = <SQ_STRING>				{ e = new E_String(t.image.substring(1, t.image.length() - 1)); }
+		| t = <DQ_STRING>				{ e = new E_String(t.image.substring(1, t.image.length() - 1)); }
+		| (
+			// cell range
+			t = <CELLRANGE>				{
+				try {
+					e = new E_RangeRef(t.image);
+				} catch (XLWrapException ex) {
+					throw new ParseException("Failed to parse xl:Expr because of an invalid range: " + ex.getMessage());
+				}
+			}
+			( <PERCENT>				{ percent = true; } )?
+		)
+		| (
+			// nested expression
+			"(" e = OrExpr() ")"
+			( <PERCENT>				{ percent = true; } )?
+		)
+		| (
+			// function call
+			t = <FUNCIDENT>				{ func = FunctionRegistry.createInstance(t.image); }
+			"("
+				(								// optional arguments
+					sub = OrExpr()			{ func.addArg(sub); } // single argument
+					(
+						( "," | ";" )			// more arguments, comma or semicolon-separated list
+						sub = OrExpr()		{ func.addArg(sub); }
+					)*
+				)?
+			")"								{ e = func; }			
+			( <PERCENT>					{ percent = true; } )?			
+		)
+		| (
+			// constant reference
+			t = <CONSTIDENT>			{ e = new E_ConstantRef(t.image.substring(1, t.image.length())); }
+		)
+	)
+	{
+		if (not) { e = new E_LogicalNot(e); }
+		if (neg) { e = new E_Negative(e); }
+		if (percent) { e = new E_Percent(e); } 
+		return e;
+	}
+}
+
+/* operators */
+
+E_Compare CompOp(XLExpr e) :
+{
+	E_Compare comp;
+}
+{
+	(
+	<LT> { comp = new E_LessThan(e, null); } |
+	<LE> { comp = new E_LessOrEqual(e, null); } |
+	<GE> { comp = new E_GreaterOrEqual(e, null); } |
+	<GT> { comp = new E_GreaterThan(e, null); } |
+	<NE> { comp = new E_NotEqual(e, null); } |
+	<EQ1> { comp = new E_Equal(e, null); } |
+	<EQ2> { comp = new E_Equal(e, null); }
+	)
+	{ return comp; }
+}
+

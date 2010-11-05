@@ -1,0 +1,57 @@
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf:	<http://xmlns.com/foaf/0.1/> .
+@prefix ex:		<http://example.org/> .
+
+@prefix ja:     <http://jena.hpl.hp.com/2005/11/Assembler#> .
+@prefix tdb:    <http://jena.hpl.hp.com/2008/tdb#> .
+@prefix sdb:    <http://jena.hpl.hp.com/2007/sdb#> .
+@prefix xl:		<http://purl.org/NET/xlwrap#> .
+@prefix :       <http://myApplication/configuration#> .
+
+
+# mapping specification
+{ [] a xl:Mapping ;
+	xl:offline "true"^^xsd:boolean ;
+	
+	xl:template [
+		xl:fileName "/Users/dorgon/Downloads/geonames_dd_dms_date_20090616.csv" ;
+		xl:sheetNumber "0" ;
+		xl:templateGraph :Geo ;
+		xl:transform [
+			a rdf:Seq ;
+			rdf:_1 [
+				a xl:RowShift ;
+				xl:restriction "A2:Z2" ;
+				xl:breakCondition "ALLEMPTY(A2:Z2)" ;
+				xl:steps "1" ;
+				xl:repeat "1000" ;
+			]
+		]
+	] ;
+	xl:template [
+		xl:fileName "/Users/dorgon/Downloads/au.txt" ;
+		xl:sheetNumber "0" ;
+		xl:templateGraph :Geo ;
+		xl:transform [
+			a rdf:Seq ;
+			rdf:_1 [
+				a xl:RowShift ;
+				xl:restriction "A2:Z2" ;
+				xl:breakCondition "ALLEMPTY(A2:Z2)" ;
+				xl:steps "1" ;
+				xl:repeat "1000" ;
+			]
+		]
+	] .
+}
+
+:Geo {
+[ xl:uri "'http://example.com/' & SUBSTITUTE(X2, ' ', '_')"^^xl:Expr ] a ex:Locality ;
+	rdfs:label "X2"^^xl:Expr ;
+	ex:latitude "D2"^^xl:Expr ;
+	ex:longitude "E2"^^xl:Expr ;
+	rdfs:seeAlso "FILENAME(D2)"^^xl:Expr .
+}
+

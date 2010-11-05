@@ -1,0 +1,41 @@
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix module: <http://joseki.org/2003/06/module#> .
+@prefix joseki: <http://joseki.org/2005/06/configuration#> .
+@prefix ja:     <http://jena.hpl.hp.com/2005/11/Assembler#> .
+@prefix sdb:    <http://jena.hpl.hp.com/2007/sdb#> .
+@prefix tdb:    <http://jena.hpl.hp.com/2008/tdb#> .
+@prefix swq:	<http://semwiq.sourceforge.net/> .
+
+[]  rdf:type joseki:Server .
+[] ja:loadClass "com.hp.hpl.jena.tdb.TDB" .
+	tdb:DatasetTDB  rdfs:subClassOf  ja:RDFDataset .
+
+swq:service
+    rdfs:label          "__TITLE__" ;
+    rdf:type            joseki:Service ;
+    joseki:serviceRef   "__SPARQLPATH__" ;          # web.xml just route this name to Joseki
+    joseki:dataset      swq:dataset ;
+    joseki:processor    joseki:ProcessorSPARQL_FixedDS ;
+    .
+
+swq:dataset
+	rdfs:label			"__TITLE__" ;
+	rdfs:comment		"__DESCRIPTION__" ;
+    joseki:generateStats	"true"^^xsd:boolean ;
+    # the rest is configured at runtime (see JosekiInstance.createJosekiConfig())
+	.	
+
+joseki:ProcessorSPARQL_FixedDS
+    rdf:type joseki:Processor ;
+    module:implementation
+    [   rdf:type   joseki:ServiceImpl ;
+        module:className <java:org.joseki.processors.SPARQL>
+    ] ;
+
+    # This processor does not accept queries with FROM/FROM NAMED
+    joseki:allowExplicitDataset       "true"^^xsd:boolean ;
+    joseki:allowWebLoading            "true"^^xsd:boolean ;
+    # The database is safe for MRSW (multiple-reader, single-writer).
+    joseki:lockingPolicy              joseki:lockingPolicyMRSW .

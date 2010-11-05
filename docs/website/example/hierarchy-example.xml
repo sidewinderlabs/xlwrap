@@ -1,0 +1,51 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" > 
+  <rdf:Description rdf:about="http://example.com/Shared+Services">
+    <rdfs:subClassOf rdf:resource="http://example.com/Corporate"/>
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.com/HR">
+    <rdfs:subClassOf rdf:resource="http://example.com/Shared+Services"/>
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.com/Company+USA">
+    <rdfs:subClassOf rdf:resource="http://example.com/Americas"/>
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.com/Sales+Germany">
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.com/Company+Germany"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.com/IT">
+    <rdfs:subClassOf rdf:resource="http://example.com/Shared+Services"/>
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.com/Marketing+Germany">
+    <rdfs:subClassOf rdf:resource="http://example.com/Company+Germany"/>
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.com/Sales+USA">
+    <rdfs:subClassOf rdf:resource="http://example.com/Company+USA"/>
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.com/EMEA">
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.com/Corporate"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.com/Company+Germany">
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+    <rdfs:subClassOf rdf:resource="http://example.com/EMEA"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.com/Americas">
+    <rdfs:subClassOf rdf:resource="http://example.com/Corporate"/>
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.com/Corporate">
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.com/Marketing+USA">
+    <rdfs:subClassOf rdf:resource="http://example.com/Company+USA"/>
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+  </rdf:Description>
+</rdf:RDF>

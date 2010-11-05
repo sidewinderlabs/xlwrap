@@ -1,0 +1,41 @@
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix foaf:	<http://xmlns.com/foaf/0.1/> .
+@prefix ex:		<http://example.org/> .
+@prefix dc:     <http://purl.org/dc/elements/1.1/> .
+
+@prefix xl:		<http://purl.org/NET/xlwrap#> .
+@prefix scv:	<http://purl.org/NET/scovo#> .
+@prefix :       <http://myApplication/configuration#> .
+
+{ # default graph
+  [] a xl:Mapping ;
+  	xl:offline "false"^^xsd:boolean ;
+  
+  xl:template [
+    xl:fileName "mappings/files/hierarchy-example.xls" ;
+    xl:templateGraph :FirstCol ;
+    xl:transform [ a rdf:Seq ;
+    	rdf:_1 [ a xl:RowShift ; xl:breakCondition "EMPTY(A1)" ]
+    ]
+  ] ;
+  xl:template [
+    xl:fileName "mappings/files/hierarchy-example.xls" ;
+    xl:templateGraph :OtherCols ;
+    xl:transform [ a rdf:Seq ;
+    	rdf:_1 [ a xl:ColShift ; xl:breakCondition "EMPTY(B1)" ] ;
+    	rdf:_2 [ a xl:RowShift ; xl:breakCondition "EMPTY(B1)" ] ;
+    ]
+  ] .
+}
+
+:FirstCol {
+  [ xl:uri "URI('http://example.com/' & URLENCODE(A1))"^^xl:Expr ] a rdfs:Class .
+}
+
+:OtherCols {
+  [ xl:uri "URI('http://example.com/' & URLENCODE(B1))"^^xl:Expr ] a rdfs:Class ;
+    rdfs:subClassOf "URI('http://example.com/' & URLENCODE(A1))"^^xl:Expr .
+}

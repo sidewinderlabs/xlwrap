@@ -1,0 +1,69 @@
+Person								
+								
+first name	last name	email	age	birthday	retired	salary	boss	
+Tom	Houston	th@ex.com	41	1968	false	50230.23	Tim Presley	
+Tim	Presley	jp@ex.com	66	1943	true	69234.43	Tim Presley	
+Elvis	Carter	elvis@ex.com	18	1991		30590.3	Tim Presley	
+Michael							Tom Houston	
+	Smith	tim@ex.com	29	1980	true	39340.03	Tim Presley	
+								
+								
+								
+Test for 3-dim cross table (sold items. revenue of product x year x country)								
+								
+Austria								
+	2007		2008		2009			
+product	items sold	revenue	items sold	revenue	items sold	revenue	Items avg	reveneue avg
+Product1	342	7866.00	376	8648.00	490	11760.00	402.67	9424.67
+Product2	4333	1005256.00	5655	1328925.00	3493	838320.00	4493.67	1057500.33
+Product3	3312	1136016.00	4566	1598100.00	5993	1917760.00	4623.67	1550625.33
+Product4	45	19350.00	56	24304.00	54	23328.00	51.67	22327.33
+Totals	8032	2168488.00	10653	2959977.00	10030	2791168.00	9571.67	2639877.67
+								
+Germany								
+	2008		2009					
+product	items sold	revenue	items sold	revenue	Items avg	reveneue avg		
+Product1	2431	55913.00	3419	82056.00	2925	68984.50		
+Product2	31230	7339050.00	32123	7709520.00	31676.5	7524285.00		
+Product3	23121	8092350.00	31039	9932480.00	27080	9012415.00		
+Product4	121	52514.00	312	134784.00	216.5	93649.00		
+Totals	56903	15539827.00	66893	17858840.00	61898	16699333.50		
+								
+Switzerland								
+	2007		2008		2009			
+product	items sold	revenue	items sold	revenue	items sold	revenue	Items avg	reveneue avg
+Product1	139	3197.00	219	5037.00	312	7488.00	223.33	5240.67
+Product2	2319	538008.00	2938	690430.00	3249	779760.00	2835.33	669399.33
+Product3	232	53824.00	239	55448.00	254	58928.00	241.67	56066.67
+Product4	21	9030.00	22	9548.00	34	14688.00	25.67	11088.67
+Totals	2711	604059.00	3418	760463.00	3849	860864.00	3326	741795.33
+								
+								
+								
+								
+France								
+	2007		2008		2009			
+product	items sold	revenue	items sold	revenue	items sold	revenue	Items avg	reveneue avg
+Product1	342	7866.00	376	8648.00	490	11760.00	402.67	9424.67
+Product2	4333	1005256.00	5655	1328925.00	3493	838320.00	4493.67	1057500.33
+Product3	3312	1136016.00	4566	1598100.00	5993	1917760.00	4623.67	1550625.33
+Product4	45	19350.00	56	24304.00	54	23328.00	51.67	22327.33
+Totals	8032	2168488.00	10653	2959977.00	10030	2791168.00	9571.67	2639877.67
+								
+England								
+	2008		2009					
+product	items sold	revenue	items sold	revenue	Items avg	reveneue avg		
+Product1	2431	55913.00	3419	82056.00	2925	68984.50		
+Product2	31230	7339050.00	32123	7709520.00	31676.5	7524285.00		
+Product3	23121	8092350.00	31039	9932480.00	27080	9012415.00		
+Product4	121	52514.00	312	134784.00	216.5	93649.00		
+Totals	56903	15539827.00	66893	17858840.00	61898	16699333.50		
+								
+Italy								
+	2007		2008		2009			
+product	items sold	revenue	items sold	revenue	items sold	revenue	Items avg	reveneue avg
+Product1	139	3197.00	219	5037.00	312	7488.00	223.33	5240.67
+Product2	2319	538008.00	2938	690430.00	3249	779760.00	2835.33	669399.33
+Product3	232	53824.00	239	55448.00	254	58928.00	241.67	56066.67
+Product4	21	9030.00	22	9548.00	34	14688.00	25.67	11088.67
+Totals	2711	604059.00	3418	760463.00	3849	860864.00	3326	741795.33

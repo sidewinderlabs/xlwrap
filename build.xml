@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="xlwrap" default="jar" basedir=".">
+    <description>
+    	XLWrap build file
+    </description>
+	<property name="name" location="location"/>
+
+	
+<!-- properties for source and target directories -->
+	
+	<property name="java.sourcedir" value="src" />
+	<property name="java.builddir" value="build" />
+	<property name="java.sourcedir-tests" value="src-tests" />
+	<property name="java.builddir-tests" value="build-tests" />
+
+	<property name="lib.dir" value="lib" />
+	<property name="target.dir" value="." />
+
+	
+<!-- properties for the vocabulary generation (with Jena schemagen) -->
+	
+	<property name="vocab.sourcedir" value="vocabulary" />
+	<property name="vocab.targetdir" value="src/at/jku/xlwrap/vocab" />
+	<property name="vocab.template"  value="${vocab.sourcedir}/schemagen.rdf" />
+
+<!-- properties for the JavaCC expression parser generation -->
+	<property name="parser.grammar" value="files/grammar/XLExpression.jj" />
+	<property name="parser.targetdir" value="src/at/jku/xlwrap/map/expr/parser" />
+	<property name="javacc.home" value="/Users/dorgon/Downloads/Java/javacc-4.2" />
+	
+<!-- properties ONLY required for the "copy-libs" task 
+     Note that ALL dependencies are INCLUDED in the distribution, so you usually don't need to call the copy-libs task!
+-->
+	
+	<property name="jena2.home" value="../Jena2 Head/" />
+	<property name="arq.home" value="../ARQ2-trunk/" />
+	<property name="joseki.home" value="../Joseki3/" />
+	
+<!-- ############### build targets ############### -->
+
+	<target name="copy-libs">
+		<description>
+			Copies required jars from local directories into ${lib.dir}. Xerces is taken from the Jena distribution.
+			It's a stand-alone task without any dependents. This is usually not required since all dependent jars are already
+			bundled in ${lib.dir}.
+		</description>
+
+		<copy todir="${lib.dir}">
+			
+			<!-- commonly used libraries taken from Jena2 -->
+			<fileset dir="${jena2.home}/lib"
+				includes="commons-logging*.jar log4j*.jar junit*.jar xercesImpl*.jar xml-apis*.jar" /><!-- Junit3 for jena -->
+			
+			<!-- Jena2-specific libs without Lucene -->
+	    	<fileset dir="${jena2.home}/lib"
+	    		includes="jena*.jar concurrent*.jar antlr*.jar icu4j*.jar iri*.jar json*.jar stax-api*.jar wstx-asl*.jar" />
+			
+			<!-- ARQ2 -->
+			<fileset dir="${arq.home}/lib"
+				includes="arq*.jar" />
+			
+			<!-- Joseki -->
+			<fileset dir="${joseki.home}/lib"
+				includes="joseki*.jar" />
+		</copy>
+	</target>
+	
+	<target name="compose-classpaths">
+	    <path id="classpath">
+	    	<fileset dir="${lib.dir}">
+	    	    <include name="**/*.jar"/>
+	    	</fileset>
+	    	<pathelement location="${java.builddir}"/>
+	    	<pathelement location="${java.builddir-tests}"/>
+		</path>
+		<pathconvert property="classpath" refid="classpath" pathsep=" " dirsep="/" />		
+	</target>
+	
+<!-- Section: vocabulary generation -->
+  <target name="vocab" depends="vocab.xlwrap,vocab.xlwrap.toXML" />
+	
+  <target name="vocab.xlwrap" depends="vocab-check.xlwrap,compose-classpaths" unless="vocab-nobuild.xlwrap">
+    <java classname="jena.schemagen" classpathref="classpath" fork="yes" failonerror="true">
+      <arg value="-i" />
+      <arg value="file:${vocab.sourcedir}/purl.org/NET/xlwrap.n3" />
+      <arg value="-o" />
+      <arg value="${vocab.targetdir}" />
+      <arg value="-c" />
+      <arg value="${vocab.template}" />
+      <arg value="-n" />
+	  <arg value="XLWrap" />
+    </java>
+  </target>
+	
+  <target name="vocab-check.xlwrap">
+    <uptodate
+       property="vocab-nobuild.xlwrap"
+       srcFile="${vocab.sourcedir}/purl.org/NET/xlwrap.n3"
+       targetFile="${vocab.targetdir}/XLWrap.java" />
+  </target>
+	
+  <target name="vocab.xlwrap.toXML" depends="vocab.xlwrap">
+	<java classname="jena.rdfcopy" classpathref="classpath" fork="yes"
+		output="${vocab.sourcedir}/purl.org/NET/xlwrap" failonerror="true">
+		<arg value="${vocab.sourcedir}/purl.org/NET/xlwrap.n3"/>
+		<arg value="N3"/>
+		<arg value="RDF/XML-ABBREV"/>
+	</java>
+  </target>
+
+	<!-- Section: building -->
+
+	<target name="javacc" depends="compose-classpaths">
+		<javacc
+		    target="${parser.grammar}"
+		    outputdirectory="${parser.targetdir}"
+		    javacchome="${javacc.home}"
+		/>
+	</target>
+	
+	<target name="build" depends="vocab,compose-classpaths">
+		<mkdir dir="${java.builddir}" />
+		<javac srcdir="${java.sourcedir}"
+			destdir="${java.builddir}"
+			classpathref="classpath"
+			verbose="on"
+			deprecation="on"
+			debug="on"
+			target="1.5"
+		/>
+		<copy todir="${java.builddir}">
+			<fileset dir="${java.sourcedir}"
+				excludes="**/*.java" />
+		</copy>
+	</target>
+	
+	<target name="build-tests" depends="build,compose-classpaths">
+		<mkdir dir="${java.builddir-tests}" />
+		<javac srcdir="${java.sourcedir-tests}"
+			destdir="${java.builddir-tests}"
+			classpathref="classpath"
+			verbose="on"
+			deprecation="on"
+			debug="on"
+			target="1.5"
+		/>
+	</target>
+	
+	<target name="clean">
+		<delete dir="${java.builddir}" />
+		<delete dir="${java.builddir-tests}" />
+		<mkdir dir="${java.builddir}" />
+		<mkdir dir="${java.builddir-tests}" />
+	</target>
+	
+	<target name="jar" depends="build">
+		<jar destfile="${target.dir}/xlwrap.jar" index="true">
+			<fileset dir="${java.builddir}">
+	    		<include name="**/*"/>
+			</fileset>
+		</jar>
+	</target>
+
+	<target name="test" depends="build-tests">
+		<junit printsummary="yes" haltonfailure="yes" showoutput="yes">
+		  <classpath refid="classpath"/>
+
+		  <batchtest fork="yes" haltonfailure="no" filtertrace="yes">
+		    <fileset dir="${java.sourcedir-tests}">
+		      <include name="**/Test*.java"/>
+		      <exclude name="**/AllTests.java"/>
+		    </fileset>
+		  </batchtest>
+		</junit>
+	</target>
+</project>

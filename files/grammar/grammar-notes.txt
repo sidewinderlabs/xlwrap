@@ -1,0 +1,29 @@
+XLExpression   =  "="? OrExpr <EOF>
+OrExpr         =  AndExpr ( "||" AndExpr )*
+AndExpr        =  Comparable ( "&&" Comparable )*
+Comparable     =  Concatable ( CompOp Concatable )*
+Concatable     =  Expr ( "&" Expr )*
+Expr           =  Term ( ("+"|"-") Term)*
+Term           =  Factor ( ("*"|"/") Factor)*
+Factor         =  Atom ("^" Atom)*
+Atom           =
+   ("+"|"-"|"!")
+   (
+      <NUMBER> |
+      (<TRUE>|<FALSE>) | 
+      <STRING> |
+      <CELLRANGE> |
+      "(" OrExpr ")" |
+      <FUNCIDENT> "(" ( OrExpr ( (","|";") OrExpr )* )? ")" |
+      <CONSTIDENT>
+   )
+   ("%")?
+CompOp         =  "<=" | "<" | ">=" | ">" | ("!="|"<>") | ("=="|"=")
+
+
+<CELLRANGE>
+Excel Range Syntax:
+=[test.xls]Tabelle1!$B$12
+
+Calc Range Syntax:
+='test.xls'#$Tabelle1.$B$12

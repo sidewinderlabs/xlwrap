@@ -1,0 +1,28 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:j.0="http://purl.org/NET/scovo#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:ex="http://example.org/"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" > 
+  <rdf:Description rdf:about="file:mappings/iswc09-example-scovo.trig">
+    <owl:import rdf:resource="http://purl.org/NET/scovo#"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="A0">
+    <rdfs:subClassOf rdf:resource="http://purl.org/NET/scovo#Dimension"/>
+    <rdfs:label>Country</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/ItemsSold">
+    <rdf:type rdf:resource="http://purl.org/NET/scovo#Item"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="A1">
+    <rdfs:subClassOf rdf:resource="http://purl.org/NET/scovo#Dimension"/>
+    <rdfs:label>Product</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="A2">
+    <rdfs:subClassOf rdf:resource="http://purl.org/NET/scovo#Dimension"/>
+    <rdfs:label>Year</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/Revenue">
+    <rdf:type rdf:resource="http://purl.org/NET/scovo#Item"/>
+  </rdf:Description>
+</rdf:RDF>

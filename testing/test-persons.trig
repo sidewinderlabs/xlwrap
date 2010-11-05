@@ -1,0 +1,51 @@
+# Test mapping file, wraps persons from files/testing/test-data1.xls
+
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf:	<http://xmlns.com/foaf/0.1/> .
+@prefix ex:		<http://example.org/> .
+
+@prefix ja:     <http://jena.hpl.hp.com/2005/11/Assembler#> .
+@prefix tdb:    <http://jena.hpl.hp.com/2008/tdb#> .
+@prefix sdb:    <http://jena.hpl.hp.com/2007/sdb#> .
+@prefix xl:		<http://purl.org/NET/xlwrap#> .
+@prefix :       <http://myApplication/configuration#> .
+
+
+# mapping specification
+{ [] a xl:Mapping ;
+	xl:offline "true"^^xsd:boolean ;
+
+	xl:template [
+		xl:fileName "testing/test-data1.xls" ;
+		xl:sheetName "Tests 1" ;
+		xl:templateGraph :PersonTemplate ;
+		xl:transform [
+			a rdf:Seq ;
+			rdf:_1 [
+				a xl:RowShift ;
+				xl:restriction "A4:H4" ;
+				xl:breakCondition "ALLEMPTY(A4:H4)" ;
+				xl:steps "1" ;
+			]
+		]
+	] .
+}
+
+:TestTemplate {
+#	_:b0 a foaf:Person .
+	_:b0 foaf:name "TRIM(A4 & ' ' & B4)"^^xl:Expr .
+}
+
+:PersonTemplate {
+	[ xl:uri "'http://example.org/' & A4 & '_' & B4"^^xl:Expr ] a "URI(('http://xmlns.com/foaf/0.1/' & A1))"^^xl:Expr ;
+		foaf:name "A4 & ' ' & B4"^^xl:Expr ;
+		foaf:mbox "C4"^^xl:Expr ;
+		ex:age "D4"^^xl:Expr ;
+		ex:birthday "E4"^^xl:Expr ;
+		ex:retired "F4"^^xl:Expr ;
+		ex:salary "G4"^^xl:Expr ;
+		rdfs:seeAlso "FILENAME(A4) & ', Sheet ' & SHEETNUM(A4)"^^xl:Expr ;
+		ex:boss [ xl:uri "'http://example.org/' & SUBSTITUTE(H4, ' ', '_')"^^xl:Expr ] .
+}

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="src-tests"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/antlr-2.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/concurrent.jar"/>
+	<classpathentry kind="lib" path="lib/icu4j_3_4.jar"/>
+	<classpathentry kind="lib" path="lib/iri.jar"/>
+	<classpathentry kind="lib" path="lib/jcl-over-slf4j-1.5.5.jar"/>
+	<classpathentry kind="lib" path="lib/json.jar"/>
+	<classpathentry kind="lib" path="lib/junit-4.5.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-over-slf4j-1.5.5.jar"/>
+	<classpathentry kind="lib" path="lib/logback-classic-0.9.11.jar"/>
+	<classpathentry kind="lib" path="lib/logback-core-0.9.11.jar"/>
+	<classpathentry kind="lib" path="lib/rdfstats.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.5.5.jar"/>
+	<classpathentry kind="lib" path="lib/stax-api-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/wstx-asl-3.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>
+	<classpathentry kind="lib" path="lib/xml-apis.jar"/>
+	<classpathentry kind="lib" path="lib/ant-1.6.5.jar"/>
+	<classpathentry kind="lib" path="lib/ng4j-0.9.1.jar"/>
+	<classpathentry kind="lib" path="lib/jxl.jar" sourcepath="/jxl/src"/>
+	<classpathentry kind="lib" path="lib/jena.jar" sourcepath="/Jena-2.6"/>
+	<classpathentry kind="lib" path="lib/jopendocument-1.1b3-patched.jar"/>
+	<classpathentry kind="lib" path="lib/tdb-0.8.1.jar" sourcepath="/TDB-0.8.1"/>
+	<classpathentry kind="lib" path="lib/arq.jar" sourcepath="/ARQ-2.7.0"/>
+	<classpathentry kind="lib" path="lib/logback-dispatcher.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-2.5-6.1.14.jar"/>
+	<classpathentry kind="lib" path="lib/joseki.jar" sourcepath="/Joseki3"/>
+	<classpathentry kind="lib" path="lib/jsp-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/jsp-api-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/pubby.jar" sourcepath="/pubby-trunk"/>
+	<classpathentry kind="lib" path="lib/velocity-1.5.jar"/>
+	<classpathentry kind="lib" path="lib/velocity-dep-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-6.1.14.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-util-6.1.14.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-core-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/logback"/>
+	<classpathentry kind="lib" path="lib/semwiq-endpoint.jar"/>
+	<classpathentry kind="lib" path="lib/semwiq-rmi-interface.jar"/>
+	<classpathentry kind="lib" path="lib/core-3.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/jsp-2.1-glassfish-9.1.1.B60.25.p0.jar"/>
+	<classpathentry kind="lib" path="lib/jsp-2.1-jetty-6.1.18.jar"/>
+	<classpathentry kind="lib" path="lib/jsp-api-2.1-glassfish-9.1.1.B60.25.p0.jar"/>
+	<classpathentry kind="output" path="build"/>
+</classpath>

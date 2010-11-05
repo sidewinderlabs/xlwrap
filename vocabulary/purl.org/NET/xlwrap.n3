@@ -1,0 +1,250 @@
+# XLWrap mapping vocabulary
+
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix ja:     <http://jena.hpl.hp.com/2005/11/Assembler#> .
+@prefix :		<http://purl.org/NET/xlwrap#> .
+
+# A mapping file is specified in TriG syntax, see http://www4.wiwiss.fu-berlin.de/bizer/TriG/
+# One of the graphs (e.g. the default graph) must contain an instance of xl:Mapping using the following concepts:
+
+:Mapping	a rdfs:Class ;
+	rdfs:label		"XLWrap mapping" ;
+	rdfs:comment	"Represents a formal mapping from spreadsheets to RDF graphs; contains multiple MapTemplates" ;
+	:required		"true"^^xsd:boolean ;
+.
+
+:template	a rdf:Property ;
+	rdfs:label		"has template" ;
+	rdfs:comment	"associates map templates to mappings; the property is used multiple times to specify templates" ;
+	rdfs:domain		:Mapping ;
+	rdfs:range		:MapTemplate ;
+	:required		"true"^^xsd:boolean ;
+.
+
+:offline	a rdf:Property ;
+	rdfs:label		"set mapping offline" ;
+	rdfs:comment	"if offline is true, the mapping will not be processed by XLWrap-Server" ;
+	rdfs:domain		:Mapping ;
+	rdfs:range		xsd:boolean;
+	:default		"false"^^xsd:boolean ;
+.
+
+:functionLib a rdf:Property ;
+	rdfs:label		"function library" ;
+	rdfs:comment	"a custom function library (java package) to load" ;
+	rdfs:domain		:Mapping ;
+	rdfs:range		xsd:string ;
+.
+
+# --------------------------------------------------
+:MapTemplate	a rdfs:Class ;
+	rdfs:label	"XLWrap mapping template" ;
+	rdfs:comment "Represents a single mapping from spreadsheets to one RDF graph; can be applied multiple times by adding transform operations" ;
+	:required		"true"^^xsd:boolean ;
+.
+
+:fileName	a rdf:Property ;
+	rdfs:label		"spreadsheet file location" ;
+	rdfs:comment	"references a spreadsheet file URI, e.g. file:// or http://...; this is the base filename for relative cell references" ;
+	rdfs:domain		:MapTemplate ;
+	rdfs:range		rdfs:Resource ;
+	:required		"true"^^xsd:boolean ;
+.
+
+:parseProfile a rdf:Property ;
+	rdfs:label		"associated parse profile" ;
+	rdfs:comment	"NOT YET SUPPORTED!!! WILL AUTO-DETECT - the value must be a valid instance of xl:ParseProfile defined by this vocabulary" ;
+	rdfs:domain		:MapTemplate ;
+	rdfs:range		:ParseProfile ;
+.
+
+:ParseProfile	a rdfs:Class ;
+	rdfs:label			"Parse profile" ;
+	rdfs:comment		"A profile used to parse CSV files" .
+
+:tab_quoted a :ParseProfile .
+:tab_unquoted a :ParseProfile .
+:comma_quoted a :ParseProfile .
+:comma_unquoted a :ParseProfile .
+:semicolon_quoted a :ParseProfile .
+:semicolon_unquoted a :ParseProfile .
+
+:sheetName	a rdf:Property ;
+	rdfs:label		"sheet name" ;
+	rdfs:comment	"named sheet of a spreadsheet workbook; this is the base sheet for relative cell references; either this one or sheetNumber is required" ;
+	rdfs:domain		:MapTemplate ;
+	rdfs:range		xsd:string ;
+	:required		"true"^^xsd:boolean ;
+.
+
+:sheetNumber a rdf:Property ;
+	rdfs:label		"sheet number" ;
+	rdfs:comment	"number of a sheet in a spreadsheet workbook; this is the base sheet for relative cell references; either this one or sheetName is required" ;
+	rdfs:domain		:MapTemplate ;
+	rdfs:range		xsd:int ;
+	:required		"true"^^xsd:boolean ;
+.
+
+:templateGraph		a rdf:Property ;
+	rdfs:label		"template graph" ;
+	rdfs:comment	"the template graph of the mapping template; contains xl:Expr to reference cells; is specified directly in the mapping file as named graphs" ;
+	rdfs:domain		:MapTemplate ;
+	rdfs:range		[ rdfs:comment "a named graph in the TriG file" ] ;
+	:required		"true"^^xsd:boolean ;
+.
+
+:constantGraph		a rdf:Property ;
+	rdfs:label		"constant graph" ;
+	rdfs:comment	"a constant graph is included into the target graph once, xl:Expr expressions are evaluated" ;
+	rdfs:domain		:MapTemplate ;
+	rdfs:range		[ rdfs:comment "a named graph in the TriG file" ] ;
+.
+
+:transform			a rdf:Property ;
+	rdfs:label		"transformation sequence" ;
+	rdfs:comment	"a sequence of transformations which will be executed in order; elements must be valid instances of xl:Transformation" ;
+	rdfs:domain		:MapTemplate ;
+	rdfs:range		rdf:Seq ;
+.
+
+# --------------------------------------------------
+:Transformation			a rdfs:Class ;
+	rdfs:label			"XLWrap transformation" ;
+	rdfs:comment		"Abstract super class of transformations" ;
+.
+
+:restriction			a rdf:Property ;
+	rdfs:label			"restriction" ;
+	rdfs:comment		"Restricts the transformation to a multi range (ranges separated by semicolons)" ;
+	rdfs:domain			:Transformation ;
+	rdfs:range			xsd:string ;
+.
+
+:breakCondition			a rdf:Property ;
+	rdfs:label			"break condition" ;
+	rdfs:comment		"An xl:Expr, which is evaluated each time before the template is transformed. Breaks the transform operation if false and resumes with the next stage from the previous transform." ;
+	rdfs:domain			:Transformation ;
+	rdfs:range			:Expr ;
+.
+
+:skipCondition			a rdf:Property ;
+	rdfs:label			"skip condition" ;
+	rdfs:comment		"An xl:Expr, which is evaluated each time before a template is applied. Skips generation of triples if false and resumes." ;
+	rdfs:domain			:Transformation ;
+	rdfs:range			:Expr ;
+.
+
+# --------------------------------------------------
+:Shift					a :Transformation ;
+	rdfs:label			"XLWrap shift transformation" ;
+	rdfs:comment		"Abstract super class of shift transformations" ;
+.
+
+:steps					a rdf:Property ;
+	rdfs:label			"shift steps" ;
+	rdfs:comment		"Shift steps in terms of columns, rows, or sheets" ;
+	rdfs:domain			:Shift ;
+	rdfs:range			xsd:int ;
+	:default			"1"^^xsd:int ;
+.
+
+:repeat					a rdf:Property ;
+	rdfs:label			"repeat times" ;
+	rdfs:comment		"Repeat times" ;
+	rdfs:domain			:Shift ;
+	rdfs:range			xsd:int ;
+	:default			"2147483647"^^xsd:int ;
+.
+
+# --------------------------------------------------
+:ColShift				a :Shift ;
+	rdfs:label			"Column shift transformation" ;
+	rdfs:comment		"Shifts the template graph at the column axis" ;
+.
+
+:RowShift				a :Shift ; 
+	rdfs:label			"Row shift transformation" ;
+	rdfs:comment		"Shifts the template graph at the row axis" ;
+.
+
+:SheetShift				a :Shift ;
+	rdfs:label			"Sheet shift transformation" ;
+	rdfs:comment		"Shifts the template graph at the sheet axis" ;
+.
+
+# --------------------------------------------------
+:SheetRepeat			a :Transformation ;
+	rdfs:label			"Sheet repeat transformation" ;
+	rdfs:comment		"Applies the template graph to a set of sheets" ;
+. 
+
+:sheetNames				a rdf:Property ;
+	rdfs:label			"Sheet sequence" ;
+	rdfs:domain			"Sequence of sheets for the xl:SheetRepeat transformation; elements must be plain literals specifying existing sheet names" ;
+	rdfs:domain			:SheetRepeat ;
+	rdfs:range			rdf:Seq ;
+	:required			"true"^^xsd:boolean ;
+.
+
+# --------------------------------------------------
+:FileRepeat				a :Transformation ;
+	rdfs:label			"File repeat transformation" ;
+	rdfs:comment		"Applies the template graph to a set of files" ;
+.
+
+:fileNames				a rdf:Property ;
+	rdfs:label			"File sequence" ;
+	rdfs:comment		"Sequence of files for the xl:FileRepeat transformation; elements must be plain literals specifying existing file names" ;
+	rdfs:domain			:FileRepeat ;
+	rdfs:range			rdf:Seq ;
+	:required			"true"^^xsd:boolean ;
+.
+
+# --------------------------------------------------
+:Expr	a rdfs:Class , rdfs:Datatype ;
+	rdfs:label   "XLWrap Expression" ;
+	rdfs:comment "Represents an XLWrap Expression, which is evaluated during the mapping process. Expressions are used in named template graphs in the TriG file. The documentation for expressions can be found at http://xlwrap.sourceforge.net/" ;
+.
+
+:uri	a rdf:Property ;
+	rdfs:Label   "XLWrap resource URI" ;
+	rdfs:comment "Used to assign a dynamic URI to an RDF resource based on a xl:Expr.";
+	rdfs:domain  rdfs:Resource ;
+	rdfs:range   :Expr ;
+.
+
+:id		a rdf:Property ;
+	rdfs:label		"Anonymous link label" ;
+	rdfs:comment	"Can be used to link blank nodes in a template graph.";
+	rdfs:domain		rdfs:Resource ;
+	rdfs:range		:Expr ;
+.
+
+
+### ASSEMBLER CONFIGURATION ######################################
+
+:XLWrapDataset
+	a rdfs:Class ;
+	rdfs:subClassOf ja:RDFDataset ;
+	rdfs:label "Virtual XLWrap dataset" ;
+	rdfs:comment "Jena Assemler specification for a virtual XLWrap dataset" ;
+	ja:assembler "at.jku.xlwrap.dataset.XLWrapDatasetAssembler" ;
+	.
+
+:cacheDir	a rdf:Property ;
+	rdfs:label		"cache directory" ;
+	rdfs:comment	"cache directory property specified in dataset assembler configuration" ;
+	rdfs:domain		:XLWrapDataset ;
+	rdfs:range		xsd:string ;
+	:required		"true"^^xsd:boolean ;
+.
+
+:watchDir	a rdf:Property ;
+	rdfs:label		"watch directory" ;
+	rdfs:comment	"watch directory property specified in dataset assembler configuration" ;
+	rdfs:domain		:XLWrapDataset ;
+	rdfs:range		xsd:string ;
+	:required		"true"^^xsd:boolean ;
+.

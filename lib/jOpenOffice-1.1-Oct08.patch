@@ -1,0 +1,31 @@
+diff -rupN ./org/jopendocument/dom/spreadsheet/Sheet.java /Users/dorgon/eclipse/jOpenDocument/src/org/jopendocument/dom/spreadsheet/Sheet.java
+--- ./org/jopendocument/dom/spreadsheet/Sheet.java	2008-07-28 17:35:38.000000000 +0200
++++ /Users/dorgon/eclipse/jOpenDocument/src/org/jopendocument/dom/spreadsheet/Sheet.java	2009-06-29 11:01:14.000000000 +0200
+@@ -38,4 +38,9 @@ public class Sheet extends Table<SpreadS
+     public final SpreadSheet getSpreadSheet() {
+         return this.getODDocument();
+     }
++    
++    public String getName() {
++    	return getElement().getAttributeValue("name", getODDocument().getNS().getTABLE());
++    }
++    
+ }
+\ No newline at end of file
+diff -rupN ./org/jopendocument/dom/spreadsheet/SpreadSheet.java /Users/dorgon/eclipse/jOpenDocument/src/org/jopendocument/dom/spreadsheet/SpreadSheet.java
+--- ./org/jopendocument/dom/spreadsheet/SpreadSheet.java	2008-07-28 17:35:38.000000000 +0200
++++ /Users/dorgon/eclipse/jOpenDocument/src/org/jopendocument/dom/spreadsheet/SpreadSheet.java	2009-06-29 10:55:28.000000000 +0200
+@@ -181,6 +181,13 @@ public class SpreadSheet implements ODDo
+         return this.sheets.size();
+     }
+ 
++    public String[] getSheetNames() {
++    	String[] names = new String[sheets.size()];
++    	for (int i = 0; i < names.length; i++)
++    		names[i] = (String) this.sheets.get(i);
++    	return names;
++    }
++    
+     public Sheet getSheet(int i) {
+         return this.getSheet((String) this.sheets.get(i));
+     }

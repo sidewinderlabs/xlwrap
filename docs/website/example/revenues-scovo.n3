@@ -1,0 +1,26 @@
+@prefix ex:      <http://example.org/> .
+
+<file:mappings/iswc09-example-scovo.trig>
+      <http://www.w3.org/2002/07/owl#import>
+              <http://purl.org/NET/scovo#> .
+
+[]    <http://www.w3.org/2000/01/rdf-schema#label>
+              "Country" ;
+      <http://www.w3.org/2000/01/rdf-schema#subClassOf>
+              <http://purl.org/NET/scovo#Dimension> .
+
+ex:ItemsSold
+      a       <http://purl.org/NET/scovo#Item> .
+
+[]    <http://www.w3.org/2000/01/rdf-schema#label>
+              "Product" ;
+      <http://www.w3.org/2000/01/rdf-schema#subClassOf>
+              <http://purl.org/NET/scovo#Dimension> .
+
+[]    <http://www.w3.org/2000/01/rdf-schema#label>
+              "Year" ;
+      <http://www.w3.org/2000/01/rdf-schema#subClassOf>
+              <http://purl.org/NET/scovo#Dimension> .
+
+ex:Revenue
+      a       <http://purl.org/NET/scovo#Item> .

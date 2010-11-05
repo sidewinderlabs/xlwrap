@@ -1,0 +1,518 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>XLWrap &ndash; Spreadsheet-to-RDF Wrapper</title>
+	<link rel="stylesheet" title="default style" href="styles.css"/>
+</head>
+<body>
+
+<div id="pagebox">
+<h1>XLWrap &ndash; Spreadsheet-to-RDF Wrapper</h1>
+
+<h2>Contents</h2>
+<ol>
+	<li><a href="#introduction">Introduction</a></li>
+	<li><a href="#example">Example</a></li>
+	<li><a href="#mappings">XLWrap Mappings</a></li>
+	<li><a href="patterns.html">Mapping Design Patterns (another page)</a></li>
+	<li><a href="#usage">Usage &ndash; XLWrap-Server</a></li>
+	<li><a href="#download">Download</a></li>
+	<li><a href="#gettingstarted">Getting Started</a></li>
+	<li><a href="#related">Related Projects</a></li>
+	<li><a href="#publications">Publications</a></li>
+	<li><a href="#credits">Credits</a></li>
+</ol>
+
+<h2><a name="introduction">Introduction</a></h2>
+<p>XLWrap is a spreadsheet-to-RDF wrapper which is capable of transforming spreadsheets to arbitrary RDF
+graphs based on a mapping specification. It supports Microsoft Excel and OpenDocument spreadsheets such
+as comma- (and tab-) separated value (CSV) files and it can load local files or download remote files via HTTP.</p>
+
+<h3>Application Areas:</h3>
+
+<ul>
+	<li><strong>Integration of spreadsheets from distributed locations</strong> based on ontologies (together with <a href="http://semwiq.sourceforge.net/" target="_blank">SemWIQ</a>, it is possible to integrate spreadsheets with other data sources such as relational databases)</li>
+	<li><strong>Publication of data from spreadsheets</strong> on the Web of Data as RDF (and via SPARQL)</li>
+	<li>Quick setup of an editable data source for the <strong>rapid prototyping of Semantic Web and Linked Data applications</strong></li>
+</ul>
+
+<h2><a name="example">Example</a></h2>
+
+<p>Consider, we would like to make data from <a href="http://xlwrap.svn.sourceforge.net/viewvc/xlwrap/xlwrap/trunk/files/testing/iswc09-example.xls?revision=7">this spreadsheet</a>
+available via a SPARQL endpoint. The spreadsheet contains revenues from a company represented in a cross table by country, year, and products.
+We want to provide the generated RDF data according to the <a href="http://purl.org/NET/scovo">SCOVO vocabulary</a>.</p>
+
+<p>These are the <strong>only three steps</strong> we need to do:</p>
+
+<ul>
+	<li><a href="http://sourceforge.net/projects/xlwrap/files/xlwrap/">Download</a> and extract XLWrap (includes XLWrap-Server)</li>
+	<li>Create a <a href="http://xlwrap.svn.sourceforge.net/viewvc/xlwrap/xlwrap/trunk/mappings/iswc09-example-scovo.trig?revision=56&view=markup">mapping</a>
+		(<a href="#mappings">explained below</a>) with your favorite editor and place it into the folder<br />
+		<code>[xlwrap-folder]/mappings</code></li>
+	<li>Start XLWrap-Server:<br />
+		<code>$ bin/server</code> (with <code>-p</code> for a port other than :8900) </li>
+</ul>
+
+<p>That's it!<br />
+You can use <a href="http://localhost:8900/snorql">Snorql</a> (known from <a href="http://www4.wiwiss.fu-berlin.de/bizer/d2r-server/">D2R-Server</a>) 
+to browse the wrapped dataset or use the SPARQL endpoint at <a href="http://localhost:8900/sparql">http://localhost:8900/sparql</a>.</p>
+
+<p><a href="example/revenues-scovo.n3">Here</a> is the complete target graph for the given example (<a href="example/revenues-scovo.xml">alternatively</a> in RDF/XML syntax).</p>
+
+<p><strong>Additional examples are provided as part of the <a href="patterns.html">Mapping Design Patterns</a> collection.</strong></p>
+
+<h2><a name="mappings">XLWrap Mappings</a></h2>
+
+<p>A mapping is provided as part of an RDF file in <a href="http://www4.wiwiss.fu-berlin.de/bizer/TriG/">TriG syntax</a>. TriG is very similar to N3
+and allows the representation of multiple (named) RDF graphs in a single file. An XLWrap mapping file must contain <em>exactly one</em> graph that contains <em>exactly one</em> RDF
+instance of <a href="http://purl.org/NET/xlwrap#Mapping">xl:Mapping</a> (typically as part of the default graph). Other graphs in the same file
+will be used to denote template graphs.</p>
+
+<p>Example:</p>
+<pre>
+{ # default graph in TriG file
+	[] a xl:Mapping ;
+	xl:template [
+		xl:fileName "file:example.xls" ;
+		xl:sheetName "foo" ;
+		xl:templateGraph :Foo ;
+		xl:transform [
+			...
+		]
+	] .
+}
+
+:Foo {
+	rdfs:label "A2 & ' ' & B2"^^xl:Expr ;
+		...
+}
+</pre>
+
+<p>XLWrap mappings are based on <strong>template graphs</strong>, which may contain <a href="#expressions">XLWrap expressions</a> including <strong>cell references</strong>
+similar to a typical spreadsheet application such as Microsoft Excel or OpenOffice Calc. Template graphs are repeatedly applied on a
+work sheet (or other work sheets) in order to produce the target graph. Depending on the representation of the information
+stored in the spreadsheet, which may be flat tables or cross tables over multiple sheets and files, each template graph is
+moved across sheets and subsequently applied for different combinations of cells. How template graphs are moved is specified
+by transform operations.</p>
+
+<p>The <strong>XLWrap mapping vocabulary</strong> can be found here: <a href="http://purl.org/NET/xlwrap#">http://purl.org/NET/xlwrap#</a>.</p>
+
+
+<h3><a name="mappingspec">Mapping Specification</a></h3>
+
+<p>An <a href="http://purl.org/NET/xlwrap#Mapping">xl:Mapping</a> consists of <strong>one or more map templates</strong>, which are denoted by the property <a href="http://purl.org/NET/xlwrap#template">xl:template</a>.
+Example:</p>
+<pre>
+{ # default graph (mapping specification)
+	[] a xl:Mapping ;
+	xl:template [ ... ] ;
+	xl:template [ ... ] ;	
+	...
+}
+</pre>
+
+<p>Each <strong>map template</strong> (value of <code>xl:template</code>) consists of the following components:</p>
+<ul>
+	<li class="p"><strong>base workbook</strong> (required, one): <a href="http://purl.org/NET/xlwrap#fileName">xl:fileName</a>, a string &ndash; a local or remote spreadsheet file<br />
+		File names are interpreted as URIs. HTTP URIs are recognized and local file names are automatically prefixed with <code>file:</code><br/>
+		Examples:</li>
+<pre>
+xl:fileName "http://example.org/path/foo.xls"
+xl:fileName "file:foo.ods"
+xl:fileName "foo.ods"
+xl:fileName "../path/file.csv"
+</pre>
+	<li class="p"><strong>base worksheet</strong> (optional, one): <a href="http://purl.org/NET/xlwrap#sheetName">xl:sheetName</a>, a string or <a href="http://purl.org/NET/xlwrap#sheetNumber">xl:sheetNumber</a>, an integer &ndash; default is the first sheet of the base workbook<br />
+		In case of CSV files this property should be omitted or the sheet <code>#1</code> must be specified.
+		Examples:</li>
+<pre>
+xl:sheetName "Sheet 1"
+xl:sheetNumber "4"^^xsd:int
+xl:sheetNumber "4"  # also allowed as plain literal
+</pre>
+	<li class="p"><strong>constant graph</strong> (optional, multiple allowed): <a href="http://purl.org/NET/xlwrap#constantGraph">xl:constantGraph</a>, a graph name &ndash; the referred graph must exist in the TriG file<br />
+	The constant graph is optional and processed only once. It may contain <a href="#expressions">XLWrap Expressions</a>.<br />
+	Example:</li>
+<pre>
+{ [] a xl:Mapping ;
+	...
+	xl:constantGraph :ANamedGraph
+	...
+}
+
+:ANamedGraph {
+	ex:dataset dc:creator "Michael Jackson" ;
+	           dc:date "NOW()"^^xl:Expr ;
+	           rdfs:seeAlso "FILENAME(A1)"^^xl:Expr ;
+}
+</pre>
+	<li class="p"><strong>template graph</strong> (required, one): <a href="http://purl.org/NET/xlwrap#templateGraph">xl:templateGraph</a>, a graph name &ndash; the referred graph must exist in the TriG file<br />
+	The template graph is evaluated according to the transform operations. It may contain <a href="#expressions">XLWrap Expressions</a>.<br />
+	Example:</li>
+<pre>
+{ [] a xl:Mapping ;
+	...
+	xl:templateGraph :ANamedGraph
+	...
+}
+
+:ANamedGraph {
+	[ xl:uri "'http://example.org/' & URLENCODE(A2 & B2)"^^xl:Expr ] a foaf:Person ;
+	foaf:name          "A2 & ' ' & B2"^^xl:Expr ;
+	foaf:mbox_sha1sum  "SHA(C2)"^^xl:Expr ;
+}
+</pre>
+	<li class="p">sequence of <strong>transform operations</strong> (optional, one sequence): the RDF sequence is specified with the <a href="http://purl.org/NET/xlwrap#transform">xl:transform</a> property,
+	each element must be an instance of the (abstract) RDF class <a href="http://purl.org/NET/xlwrap#Transformation">xl:Transformation</a>. These are the instructions for shifting and repeating the template graph 
+	multiple times for different spreadsheet cells. If omitted, the original template graph is applied just once.<br />
+	Example:</li>
+<pre>
+xl:transform [
+	a rdf:Seq ;
+		rdf:_1 [
+			a xl:RowShift ;
+			xl:breakCondition "ALLEMPTY(*.*)" ;
+		] ;
+		rdf:_2 [
+			a xl:SheetShift ;
+			xl:repeat "3" ;
+	]
+</pre>
+</ul>
+
+<h3><a name="transforms">Transform Operations</a></h3>
+
+<p>The following <strong>transform operations</strong> (sub-classes of <a href="http://purl.org/NET/xlwrap#Transformation">xl:Transformation</a>) are currently available:</p>
+<ul>
+	<li class="p"><em>row shift</em> (<a href="http://purl.org/NET/xlwrap#RowShift">xl:RowShift</a>)<br />
+	Example:
+	</li>
+<pre>
+[ a xl:RowShift ;
+  xl:step "2" ;
+  xl:repeat "2000" ;
+  xl:restriction "Sheet1.*" ;
+  xl:breakCondition "ALLEMPTY(*.*)" ;
+]
+</pre>
+	<li class="p"><em>column shift</em> (<a href="http://purl.org/NET/xlwrap#ColShift">xl:ColShift</a>)<br />
+	Example:
+	</li>
+<pre>
+[ a xl:ColShift ;
+  xl:step "5" ;
+  xl:repeat "1000" ;
+  xl:restriction "A3:N20;A1;'Sheet 2'.*" ;
+  xl:breakCondition "A1 == 'foo'" ;
+]
+</pre>
+	<li class="p"><em>sheet shift</em> (<a href="http://purl.org/NET/xlwrap#SheetShift">xl:SheetShift</a>)<br />
+	Example:
+	</li>
+<pre>
+[ a xl:SheetShift ;
+  xl:step "1" ;
+  xl:repeat "10" ;
+  xl:restriction "A1;A4:A6;B9" ;
+  xl:breakCondition "INT(LEFT(SHEETNAME(A1), 4)) &lt;= 2007" ;
+]
+</pre>
+	<li class="p"><em>sheet repeat</em> (<a href="http://purl.org/NET/xlwrap#SheetRepeat">xl:SheetRepeat</a>)<br />
+	Example:
+	</li>
+<pre>
+[ a xl:SheetRepeat ;
+  xl:restriction "*.*" ;
+  xl:breakCondition "A1 == 'foo'" ;
+  xl:sheetNames "Sheet 1, Sheet 2, 'Sheet,, 3', Sheet 4" ;
+]
+</pre>
+	<li class="p"><em>file repeat</em> (<a href="http://purl.org/NET/xlwrap#FileRepeat">xl:FileRepeat</a>)<br />
+	Example:
+	</li>
+<pre>
+[ a xl:FileRepeat ;
+  xl:restriction "*.*" ;
+  xl:breakCondition "A1 &lt;= 10" ;
+  xl:fileNames "http://example.com/foo.xls, file:localfile.csv" ;
+]
+</pre>
+</ul>
+
+<p>For each of these operations, an optional <strong>range restriction</strong> (property <a href="http://purl.org/NET/xlwrap#restriction">xl:restriction</a>) can be specified,
+which restricts the operation to a multi-range, i.e. only range references within the restriction are transformed (default is <em>any range</em>: <code>*.*</code>).</p>
+
+<p>Furthermore, an optional <strong>break condition</strong> can be specified as an <a href="#expressions">XLWrap Expression</a> with the 
+<a href="http://purl.org/NET/xlwrap#breakCondition">xl:breakCondition</a> property (default condition expression: <em>false</em>, i.e. &quot;never break until end of file or specified times repeated&quot;). The condition is evaluated
+after a template graph is transformed and if it evaluates to <em>true</em>, the transform operation is 
+skipped and XLWrap continues with the next stage of the following transform operation.</p>
+
+<p>For <em>shift operations</em> it is possible to specify the <strong>steps</strong> (in terms of columns/rows/sheets
+to shift) with the property <a href="http://purl.org/NET/xlwrap#steps">xl:steps</a> (default is <code>1</code>) and the number of
+times the operation should be <strong>repeated</strong> with the property <a href="http://purl.org/NET/xlwrap#repeat">xl:repeat</a>
+(default is the maximum integer value of the runtime system).</p>
+
+<p>In case of the <em>repeat operations</em> it is required to specify a list of sheet names with the property <a href="http://purl.org/NET/xlwrap#sheetNames">xl:sheetNames</a>
+or file names, respectively, with <a href="http://purl.org/NET/xlwrap#fileNames">xl:fileNames</a>. They are specified as a comma-separated list in a plain literal.</p>
+
+
+<h3><a name="expressions">XLWrap Expressions</a></h3>
+
+<p>XLWrap expressions are used:</p>
+<ul>
+<li>within template graphs</li>
+<li>within constant graphs</li>
+<li>for conditions of transform operations (in this case the return value must be <em>boolean</em>, e.g. <code>A4 == 'foo'</code>)</li>
+</ul>
+
+<p>The basic elements of XLWrap expressions are:</p>
+<ul>
+<li><strong>numbers</strong></li>
+<li><strong>strings</strong> (unquoted if they do not contain special characters, single or double quoted otherwise)</li>
+<li>the <strong>boolean</strong> constants <em>true</em> and <em>false</em></li>
+<li><a href="#rangereferences">range references</a> (e.g. <code>A3</code>, <code>Sheet1.A3:Sheet3.B9</code>, etc.)</li>
+<li>the following <strong>unary operators</strong>:</li>
+<ul>
+	<li><code>+</code> and <code>-</code> for <strong>negative</strong> numbers: e.g. <code>-3</code> or <code>-(3+9)</code></li>
+	<li><code>%</code> to denote <strong>percentage</strong> of numbers: e.g. <code>40-20%</code> or <code>SUM(A3:A9)%</code></li>
+	<li><code>!</code> (<strong>logical not</strong>) for boolean values or sub expressions: e.g. <code>!(A3 == 'foo')</code></li>
+</ul>
+<li>the following binary operators:</li>
+<ul>
+	<li><strong>string concatenation</strong>: <code>&</code> (e.g. <code>'foo' & A4</code>)</li>
+	<li><strong>arithmetic operators</strong>: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>^</code> (e.g. <code>5*4 + 2*(9+3)</code></li>
+	<li><strong>comparison operators</strong>: <code>&lt;</code>, <code>&lt;=</code>, <code>==</code> or <code>=</code>, <code>!=</code> or <code>&lt;&gt;</code>, <code>&gt;=</code>, <code>&gt;</code> (e.g. <code>A3 &gt; 5*4</code>)</li>
+	<li><strong>logical operators</strong>: <code>&amp;&amp;</code>, <code>||</code></li>
+</ul>
+<li><strong>function calls</strong> (<a href="#functions">available functions</a>)</li>
+<li>brackets for <strong>grouping</strong> of sub-expressions (e.g. <code>(A1 + 4) * (A3 + 10)</code></li>
+</ul>
+
+<p>The <a href="http://xlwrap.svn.sourceforge.net/viewvc/xlwrap/xlwrap/trunk/files/grammar/grammar-notes.txt?revision=56&view=markup">complete grammar</a>
+for XLWrap expressions is available as part of the distribution. 
+
+
+<h3><a name="rangerefs">Range References</a></h3>
+
+<p>Expressions may contain <strong>range references</strong> in order to obtain values from spreadsheets. The common syntax for range references is:</p>
+
+<p><code>( ( [filename] "#$" )? [sheet1] "." )? [column1] [row1] ( ":" ( [sheet2] "." )? [column2] [row2] )?</code></p>
+
+<p>File and sheet names have to be quoted if they contain spaces or special characters. 
+Please note the optional parts inside of the brackets. There are actually different kinds of ranges references:</p>
+
+<ul>
+<li class="p"><strong>cell range</strong>: <code>( ( [filename] "#$" )? [sheet1] "." )? [column1] [row1]</code><br />
+	Examples:</li>
+<pre>
+A4
+file:foo.xls#$Sheet1.A4
+'Sheet 1'.Z9
+</pre>
+<li class="p"><strong>box range</strong> with obligatory second part: <code>":" ( [sheet2] "." )? [column2] [row2]</code><br />
+	Examples:</li>
+<pre>
+A4:C9
+file:foo.xls#$Sheet1.A4:Sheet3.B6
+</pre>
+<li class="p"><strong>full sheet range</strong>: <code>( [filename] "#$" )? [sheet] ".*"</code><br />
+	Examples:</li>
+<pre>
+Sheet1.*
+http://example.org/file.xls#$'sheet x'.*
+</pre>
+<li class="p">the special <strong>any range</strong> construct: <code>*.*</code></li>
+<li class="p">and <strong>multi ranges</strong>: multiple ranges separated by semicolons<br />
+	Example:</li>
+<pre>
+A3; Sheet1.A3:B20; file:foo.xls#$Sheet1.*
+</pre>
+</ul>
+
+<p>Furthermore, it is possible to <strong>specify sheets by numbers</strong> instead of names with a <code>#</code>-prefix: e.g. <code>#1.A3</code> refers to A3 on the first sheet of the current workbook (the current workbook
+is usually the base workbook specified for the map template, however, as a consequence of transform operations this can also be another workbook file).</p>
+
+<p>Depending on the situation, <strong>specific kinds of ranges may be valid or not</strong>. For instance, specifying a box range as a single expression is not 
+valid: <code>A3:A9</code> is invalid. However, it is possible to specify a box range as an argument of the function <code>SUM()</code>: 
+<code>SUM(A3:A9; A10; 34; 10)</code>.
+
+<h3><a name="urisbnodes">URIs and Anonymous Identity</a></h3>
+
+<p>In order to construct URI nodes, a blank node is used with the special property <code>xl:uri</code>, specifying the URI of the node. For example:</p>
+
+<pre>
+[ xl:uri "'http://example.org/' & URLENCODE(A2 & B2)"^^xl:Expr ] a foaf:Person .
+</pre>
+
+<p>will create a statement like <code>&lt;http://example.org/Tim+Smith&gt; a foaf:Person</code> at runtime.</p>
+
+<p>Similarly, it is possible to link anonymous resources (blank nodes):</p>
+
+<pre>
+[] a ex:Revenue ;
+scv:dimension [ xl:id "A4"^^xl:Expr ; a ex:Product ; rdfs:label "A4"^^xl:Expr ] .
+</pre>
+
+<p>The XLWrap processor will ensure, that all resources with equal <code>xl:id</code> values will get equal blank node identifiers in the target graph. This
+feature is very important for more sophisticated mappings. It is also used for the <a href="#example">SCOVO example</a> above.</p>
+
+<h3><a name="functions">Functions</a></h3>
+
+<p>The function library of XLWrap will be continuously extended. We will provide detailed documentation of functions in future. For the meanwhile, 
+please have a look at the source code of the <a href="http://xlwrap.svn.sourceforge.net/viewvc/xlwrap/xlwrap/trunk/src/at/langegger/xlwrap/map/expr/func/">core functions</a>.</p>
+
+<p>It is also possible to add custom functions. Each function is implemented by a Java class. The name of the
+class must adhere to the following pattern: <code>E_Func[NAME]</code> where <code>NAME</code> is the name of the function
+as it is used as part of expressions (e.g. <code>NOW()</code> is implemented by the class <code>E_FuncNOW</code>). The location on the classpath is not important, you can
+place it anywhere.</p>
+<ul>
+<li>Implement <code>E_FuncYOURFUNCTION</code> by extending the abstract class <code>at.jku.xlwrap.map.expr.func.XLExprFunction</code>. 
+Apart from defining a default constructor (without arguments), the only method you need to implement is this one from the 
+interface <code>at.jku.xlwrap.map.expr.XLExpr</code>:</li>
+<pre>
+public XLExprValue&lt;?&gt; eval(ExecutionContext context) throws XLWrapException, XLWrapEOFException;
+</pre>
+
+<li>Function arguments are already managed by the abstract super class. To access them, use <code>getArg(int i)</code>.</li>
+<li>Be sure to call <code>.eval(context)</code> for any argument you wish to process. For example <code>eval()</code> of <code>E_FuncTRIM</code> looks like this:</li>
+<pre>
+
+@Override
+public XLExprValue&lt;?&gt; eval(ExecutionContext context) throws XLWrapException, XLWrapEOFException {
+	XLExprValue&lt;?&gt; v1 = getArg(0).eval(context);
+	if (v1 == null)
+		return null;
+	else
+		return new E_String(TypeCast.toString(v1).trim());
+}
+</pre>
+<li>Also be aware of <em>null</em> values returned by evaluated arguments! Typically you will return also null or throw an exception. If cell references refer to empty
+cells, a null value will be produced and chained through the complete expression. If an expression returns null in the end, XLWrap will skip the correpsonding
+statement.</li>
+<li>Currently you have to call <code>FunctionRegistry.registerPackage(String pkg)</code> somewhere in your code, where <code>pkg</code> is the package name where <code>E_FuncYOURFUNCTION</code> is located.
+In the next release it will be possible to dynamically load function libraries with the property  <a href="http://purl.org/NET/xlwrap#functionLib">xl:functionLib</a> specified
+for the <a href="http://purl.org/NET/xlwrap#Mapping">xl:Mapping</a> instance.</li>
+<li>Compile your code and place it onto the classpath.</li>
+<li>XLWrap is now able to parse expressions including your custom function.</li>
+</ul>
+
+
+<h2><a name="usage">Usage &ndash; XLWrap-Server</a></h2>
+<p>XLWrap can be used either in-process via the Jena API or as a SPARQL endpoint via the bundled XLWrap-Server.</p>
+
+<h3>Using XLWrap via the API</h3>
+
+<p>The relevant classes to look for are:</p>
+<ul>
+<li><code>MapParser</code>, which can be used to parse TriG files into instances of <code>XLWrapMapping</code>, which is the representation used internally by XLWrap.</li>
+<li><code>XLWrapMaterializer</code>, which can be used to dump spreadsheets to RDF models.</li>
+</ul>
+
+<p>Example:</p>
+<pre>
+XLWrapMapping map = MappingParser.parse("mappings/iswc09-example-scovo.trig");
+XLWrapMaterializer mat = new XLWrapMaterializer();
+Model m = mat.generateModel(map);
+m.write(new FileOutputStream("docs/website/example/revenues-scovo.n3"), "N3");
+</pre>
+
+<p>The materializer returns an ordinary Jena model. If you want to provide your own Jena model (possibly an inference model),
+you can explicitly provide a target model:</p>
+<pre>
+Model m = mat.generateModel(map, targetModel);
+</pre>
+
+<p>The materializer instance can be reused multiple times for different processes. It will keep any workbooks in memory for faster processing
+of multiple mappings with common spreadsheet files (especially when they have been downloaded from the Web).</p>
+
+<h3>Using XLWrap-Server</h3>
+
+<p>Just start the server from the XLWrap directory: <code>$ bin/server</code> and place mapping files into the folder <code>mappings</code>. The command takes the
+following arguments:</p>
+
+<pre>
+ -?,--help                        help
+ -B,--dataset-base &lt;uri-prefix&gt;   Dataset base URI prefix for Pubby (see
+                                  <a href="http://www4.wiwiss.fu-berlin.de/pubby/" target="_blank">http://www4.wiwiss.fu-berlin.de/pubby/</a>)
+ -c,--config &lt;port&gt;               Joseki config file
+ -D,--desc &lt;text&gt;                 Dataset description
+ -d,--data &lt;port&gt;                 RDF data (.n3, .ttl, .rdf, .xml)
+ -H,--homepage &lt;url&gt;              Homepage
+ -h,--host &lt;hostname&gt;             hostname (if it cannot be correctly
+                                  determined by the JVM)
+ -p,--port &lt;port&gt;                 port (default: 8900)
+ -T,--title &lt;text&gt;                Dataset title
+</pre>
+
+<p><strong>If no argument is specified, the shell script automatically adds &quot;-c joseki-xlwrap.ttl&quot; to the call.</strong> The options <code>-c</code> 
+and <code>-p</code> are probably the most important ones. Some meta data displayed at the web frontend and used by 
+<a href="http://www4.wiwiss.fu-berlin.de/pubby/" target="_blank">Pubby</a> can be specified also.</p>
+<p>Now open your browser and go to <a href="http://localhost:8900">http://localhost:8900</a> (please adjust the port if needed).</p>
+
+<p><strong>Useful Functions to provide Linked Data</strong></p>
+
+<p>XLWrap provides useful functions for mappings: <code>HOSTNAME()</code> and <code>PORT()</code> that can be used to obtain the current hostname and port
+the server is running on. Another important function is <code>MAKEURI()</code>, which can be used to create local URIs in order to make the resources accessible
+via the integrated Linked Data Browser <a href="http://www4.wiwiss.fu-berlin.de/pubby/">Pubby</a>. Call <code>MAKEURI()</code> with either one or two String
+arguments. In the first case, the argument is URL-encoded, in the second case, the first argument is appended as-is and the second String argument is URL-encoded.</p> 
+
+<p>Additionally, we will provide functions in future to help users creating external links to other Linked Data sources such as DBpedia. We will integrate
+several record linkage algorithms and geo-mapping functions to create links to DBpedia, geonames.org, etc.</p>
+
+
+<h2><a name="download">Download</a></h2>
+
+<p>XLWrap can be downloaded from sourceforge.net: <a href="http://sourceforge.net/projects/xlwrap/files/xlwrap/">http://sourceforge.net/projects/xlwrap/files/xlwrap/</a></p>
+
+<h2><a name="gettingstarted">Getting Started Guide</a></h2>
+
+<ol>
+<li>Please have a look at the <a href="#example">example</a> and download XLWrap.</li>
+<li>For details on starting and using XLWrap-Server proceed with the <a href="#usage">usage section</a>.</li>
+<li>In order to start creating your own mappings read the <a href="#mappings">mappings section</a>.</li>
+</ol>
+
+<h2><a name="related">Related Projects</a></h2>
+
+<p>XLWrap has been developed because there previously was no spreadsheet-to-RDF wrapper that supported cross tables.
+The following related projects are all based on a row-by-row wrapping process and plain text CSV files only:</p>
+
+<ul>
+<li><a href="http://rdf123.umbc.edu/" target="_blank">RDF123</a> (best until now, supports template graphs, still row-oriented, CSV plain text only)</li> 
+<li><a href="http://www.mindswap.org/~rreck/excel2rdf.shtml" target="_blank">Excel2RDF</a> (no mappings, very basic, CSV plain text only)</li>
+<li><a href="http://www.mindswap.org/~mhgrove/ConvertToRDF/" target="_blank">ConvertToRdf</a> (basic mapping, fixed rdf:type and 1:1 mapping from column headings to properties, CSV only)</li>
+<li><a href="http://www.topquadrant.com" target="_blank">TopBraid Composer</a> (basic mapping, CSV only)</li>
+</ul>
+
+<h2><a name="publications">Publications</a></h2>
+
+<p>Andreas Langegger, Wolfram Wöß (2009): XLWrap &ndash; Querying and Integrating Arbitrary Spreadsheets with SPARQL. In <em>Proceedings of the 8th International Semantic Web Conference (ISWC2009)</em>,
+Washington D.C. LNCS 5823, Springer, 2009.</p>
+
+<p>Andreas Langegger, Wolfram Wöß (2009): Querying and Semantically Integrating Spreadsheet Collections with XLWrap-Server &ndash; Use Cases and Mapping Design Patterns.
+<em>Poster &amp; Demo Session at the 8th International Semantic Web Conference (ISWC2009)</em>, Washington D.C., 2009.</p>
+
+
+<h2><a name="credits">Credits</a></h2>
+
+<p>Contact: 
+<script type="text/javascript">
+/*<![CDATA[*/
+	document.writeln('<a href="'+'mai'+'lto:andreas');
+	document.writeln('@');
+	document.writeln('langegger'+'.'+'at">Andreas ');
+	document.writeln('Langegger</a>');
+/*]]>*/
+</script>
+aka AndyL</p>
+<p>Many thanks to <a href="http://richard.cyganiak.de/foaf.rdf#cygr" target="_blank">Richard Cyganiak</a> for contributing bug fixes.</p>
+
+<p>XLWrap has been developed as another wrapper for the <a href="http://semwiq.sourceforge.net">Semantic Web Integrator and Query Engine</a> (SemWIQ).</p>
+
+<p>Thanks to SourceForge.net for providing the infrastructure.</p>
+<img src="http://sourceforge.net/sflogo.php?group_id=267519&type=5" alt="SourceForge.net Logo" />
+<p>&nbsp;</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,20 @@
+TODOs
+
+Parser:
+* support for numbers in function names (assume range has max. 3 letters, e.g. ZZZ3 and function names with numbers must have more than 3 letters first)
+
+Mapping/Transformations:
+* DirectoryShift based on patterns
+* loading of custom functions, does not work now because xl:Expr literals are already parsed
+  during reading the mapping model
+
+Execution:
+* full support of date, time, and time intervals
+* support for BigDecimal (especially when calculating with currency values)
+* support for NumberFormats in CSV files (e.g. parsing of strings such as "€ 1,000.00")
+* persistent caching of materialized models in Jena TDB, no need to re-materialize on startup
+
+GUI:
+* GUI to support mapping generation (based on Eclipse Workbench)
+* debugger
+* Experiments with auto-detection of cross tables, ask Reinhard

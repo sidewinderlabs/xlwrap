@@ -1,0 +1,83 @@
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix ex:		<http://example.org/> .
+@prefix dc:     <http://purl.org/dc/elements/1.1/> .
+@prefix xl:		<http://purl.org/NET/xlwrap#> .
+@prefix scv:	<http://purl.org/NET/scovo#> .
+@prefix :       <http://myApplication/configuration#> .
+
+{ [] a xl:Mapping ;
+	xl:offline "false"^^xsd:boolean ;
+
+	xl:template [
+		xl:fileName "mappings/files/UNdata_cpi-general.csv" ;
+		xl:constantGraph :Constant_General ;
+		xl:templateGraph :CPI_General ;
+		xl:transform [
+			a xl:RowShift ;
+			xl:restriction "A2:D2" ;
+			xl:breakCondition "ALLEMPTY(A2:D2)" ;
+		]
+	] ;
+	
+	xl:template [
+		xl:fileName "mappings/files/UNdata_cpi-food.csv" ;
+		xl:constantGraph :Constant_Food ;
+		xl:templateGraph :CPI_Food ;
+		xl:transform [
+			a xl:RowShift ;
+			xl:restriction "A2:D2" ;
+			xl:breakCondition "ALLEMPTY(A2:D2)" ;
+		]
+	] .
+}
+
+:Constant_Food {
+	<> owl:import scv: .	
+	[ xl:uri "MAKEURI('CPI_Food')"^^xl:Expr ] a scv:Dataset ;
+		dc:title    "Consumer Price Index for food (2000 = 100%)" ;
+		dc:publisher <http://data.un.org> ;
+		dc:creator   <http://langegger.at/foaf.rdf#me> ;
+		dc:date     "NOW()"^^xl:Expr .
+	
+	ex:CPI_Food a scv:Item ;
+		rdfs:seeAlso <http://dbpedia.org/page/Consumer_price_index> .
+	ex:Country  [ rdfs:label "country" ; rdfs:subClassOf scv:Dimension ] .
+	ex:City  	[ rdfs:label "city" ; rdfs:subClassOf scv:Dimension ] .
+	ex:Year     [ rdfs:label "year" ; rdfs:subClassOf scv:Dimension ] .	
+}
+
+:Constant_General {
+	<> owl:import scv: .	
+	[ xl:uri "MAKEURI('CPI_General')"^^xl:Expr ] a scv:Dataset ;
+		dc:title    "Consumer Price Index for general goods (2000 = 100%)" ;
+		dc:publisher <http://data.un.org> ;
+		dc:creator   <http://langegger.at/foaf.rdf#me> ;
+		dc:date     "NOW()"^^xl:Expr .
+	
+	ex:CPI_General a scv:Item ;
+		rdfs:seeAlso <http://dbpedia.org/page/Consumer_price_index> .
+	ex:Country  [ rdfs:label "country" ; rdfs:subClassOf scv:Dimension ] .
+	ex:City  	[ rdfs:label "city" ; rdfs:subClassOf scv:Dimension ] .
+	ex:Year     [ rdfs:label "year" ; rdfs:subClassOf scv:Dimension ] .	
+}
+
+:CPI_Food {
+	[ xl:uri "MAKEURI('CPI_Food_' & A2 & '_' & C2 & '_' & B2)"^^xl:Expr ] a ex:CPI_Food ;
+		scv:dataset [ xl:uri "MAKEURI('CPI')"^^xl:Expr ] ;
+		scv:dimension [ xl:uri "MAKEURI(A2)"^^xl:Expr ; owl:sameAs "DBP_LOCALITY(A2)"^^xl:Expr ; a ex:Country ; rdfs:label "A2"^^xl:Expr ] ;
+		scv:dimension [ xl:uri "MAKEURI(B2)"^^xl:Expr ; owl:sameAs "DBP_YEAR(B2)"^^xl:Expr ; a ex:Year ; rdfs:label "B2"^^xl:Expr ] ;
+		scv:dimension [ xl:uri "MAKEURI(C2)"^^xl:Expr ; owl:sameAs "DBP_LOCALITY(C2)"^^xl:Expr ; a ex:City ; rdfs:label "C2"^^xl:Expr ] ;
+		rdf:value "D2"^^xl:Expr ;
+}
+
+:CPI_General {
+	[ xl:uri "MAKEURI('CPI_General_' & A2 & '_' & C2 & '_' & B2)"^^xl:Expr ] a ex:CPI_General ;
+		scv:dataset [ xl:uri "MAKEURI('CPI')"^^xl:Expr ] ;
+		scv:dimension [ xl:uri "MAKEURI(A2)"^^xl:Expr ; owl:sameAs "DBP_LOCALITY(A2)"^^xl:Expr ; a ex:Country ; rdfs:label "A2"^^xl:Expr ] ;
+		scv:dimension [ xl:uri "MAKEURI(B2)"^^xl:Expr ; owl:sameAs "DBP_YEAR(B2)"^^xl:Expr ; a ex:Year ; rdfs:label "B2"^^xl:Expr ] ;
+		scv:dimension [ xl:uri "MAKEURI(C2)"^^xl:Expr ; owl:sameAs "DBP_LOCALITY(C2)"^^xl:Expr ; a ex:City ; rdfs:label "C2"^^xl:Expr ] ;
+		rdf:value "D2"^^xl:Expr ;
+}

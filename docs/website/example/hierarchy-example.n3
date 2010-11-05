@@ -1,0 +1,57 @@
+<http://example.com/Shared+Services>
+      a       <http://www.w3.org/2000/01/rdf-schema#Class> ;
+      <http://www.w3.org/2000/01/rdf-schema#subClassOf>
+              <http://example.com/Corporate> .
+
+<http://example.com/HR>
+      a       <http://www.w3.org/2000/01/rdf-schema#Class> ;
+      <http://www.w3.org/2000/01/rdf-schema#subClassOf>
+              <http://example.com/Shared+Services> .
+
+<http://example.com/Company+USA>
+      a       <http://www.w3.org/2000/01/rdf-schema#Class> ;
+      <http://www.w3.org/2000/01/rdf-schema#subClassOf>
+              <http://example.com/Americas> .
+
+<http://example.com/Sales+Germany>
+      a       <http://www.w3.org/2000/01/rdf-schema#Class> ;
+      <http://www.w3.org/2000/01/rdf-schema#subClassOf>
+              <http://example.com/Company+Germany> .
+
+<http://example.com/IT>
+      a       <http://www.w3.org/2000/01/rdf-schema#Class> ;
+      <http://www.w3.org/2000/01/rdf-schema#subClassOf>
+              <http://example.com/Shared+Services> .
+
+<http://example.com/Marketing+Germany>
+      a       <http://www.w3.org/2000/01/rdf-schema#Class> ;
+      <http://www.w3.org/2000/01/rdf-schema#subClassOf>
+              <http://example.com/Company+Germany> .
+
+<http://example.com/Sales+USA>
+      a       <http://www.w3.org/2000/01/rdf-schema#Class> ;
+      <http://www.w3.org/2000/01/rdf-schema#subClassOf>
+              <http://example.com/Company+USA> .
+
+<http://example.com/EMEA>
+      a       <http://www.w3.org/2000/01/rdf-schema#Class> ;
+      <http://www.w3.org/2000/01/rdf-schema#subClassOf>
+              <http://example.com/Corporate> .
+
+<http://example.com/Company+Germany>
+      a       <http://www.w3.org/2000/01/rdf-schema#Class> ;
+      <http://www.w3.org/2000/01/rdf-schema#subClassOf>
+              <http://example.com/EMEA> .
+
+<http://example.com/Americas>
+      a       <http://www.w3.org/2000/01/rdf-schema#Class> ;
+      <http://www.w3.org/2000/01/rdf-schema#subClassOf>
+              <http://example.com/Corporate> .
+
+<http://example.com/Corporate>
+      a       <http://www.w3.org/2000/01/rdf-schema#Class> .
+
+<http://example.com/Marketing+USA>
+      a       <http://www.w3.org/2000/01/rdf-schema#Class> ;
+      <http://www.w3.org/2000/01/rdf-schema#subClassOf>
+              <http://example.com/Company+USA> .

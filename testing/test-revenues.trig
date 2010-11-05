@@ -1,0 +1,60 @@
+# Test mapping file, wraps revenues from files/testing/test-data1.xls
+
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix xl:		<http://purl.org/NET/xlwrap#> .
+@prefix :		<http://example.org/> .
+
+# mapping specification
+{ [] a xl:Mapping ;
+	xl:offline "true"^^xsd:boolean ;
+
+	xl:template [
+		xl:fileName "testing/test-data1.csv" ;
+		xl:sheetName "Tests 1" ;
+		xl:templateGraph :TestTemplate ;
+		xl:transform [
+			a rdf:Seq ;
+			rdf:_1 [
+				a xl:RowShift ;
+				xl:restriction "A17; B17:C17" ;
+				xl:breakCondition "LEFT(A17, 7) != 'Product'" ;
+				xl:steps "1" ;
+				xl:repeat "4"
+			] ;
+			rdf:_2 [
+				a xl:ColShift ;
+				xl:restriction "B17:C20; B15"^^xl:Expr ;
+				xl:breakCondition "B16 != 'items sold' || C16 != 'revenue'" ;
+				xl:steps "2" ;
+				xl:repeat "2"
+			] ;
+			rdf:_3 [
+				a xl:RowShift ;
+				xl:restriction "A14:E21"^^xl:Expr ;
+				xl:breakCondition "A16 != 'product'" ; 
+				xl:steps "9" ;
+				xl:repeat "3"
+			] ;
+			rdf:_4 [
+				a xl:RowShift ;
+				xl:restriction "A14:I39"^^xl:Expr ;
+				xl:breakCondition "A14 == ''" ;
+				xl:steps "30" ;
+				xl:repeat "2"
+			]
+		]
+	] .
+}
+
+:TestTemplate {
+	_:b0 rdf:type :Revenue .
+	_:b0 :country "A14"^^xl:Expr .
+	_:b0 :year    "B15"^^xl:Expr .
+	_:b0 :product "A17"^^xl:Expr .
+	_:b0 :items   "B17"^^xl:Expr .
+	_:b0 :revenue "C17"^^xl:Expr .
+	_:b0 xl:uri "'http://example.org/revenue_' & A14 & '_' & B15 & '_' & A17"^^xl:Expr .
+}

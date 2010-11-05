@@ -1,0 +1,64 @@
+body {
+	margin:10px ;
+}
+
+body,p,h1,h2,h3 {
+	font-family: arial, sans-serif ;
+}
+
+h1 {
+	font-size:18pt ; color: #c066ff ;
+}
+
+h2 {
+	font-size:12pt ; font-weight: bold ;
+	border-bottom: 1px #c066ff dashed ;
+}
+
+body,p,td {
+	font-size:10pt ;
+}
+
+table.l {
+	background-color: #e0f0e0 ; border-collapse: collapse ; border-spacing: 0px ;
+}
+
+th.l {
+	text-align: left; font-weight: bold;
+}
+
+th.l, td.l {
+	vertical-align: top; border: 1px white solid ; padding-top: 2px ; padding-bottom: 2px; padding-left: 5px; padding-right: 5px;
+}
+
+.footer {
+	border-top: 1px #c066ff dashed ; padding-top: 5px; font-size: 11px ; font-weight: normal;
+}
+
+.log_table {
+	border: 0px; border-top: 1px solid lightblue; width: 100%
+}
+
+.log_level .log_level_error .log_timestamp .log_msg {
+	font-size: 10pt; font-family: Arial, Verdana, sans-serif; vertical-align: top;
+}
+
+.log_level {
+	color: green; font-weight: bold; width: 50px; vertical-align: top;
+}
+
+.log_level_error {
+	color: red; font-weight: bold; width: 50px; vertical-align: top;
+}
+
+.log_timestamp {
+	color: blue; white-space: nowrap; width: 100px; vertical-align: top;
+}
+
+.log_msg {
+	color: black; vertical-align: top;
+}
+
+.log_details {
+	color: gray; font-size: 8pt; vertical-align: top;
+}

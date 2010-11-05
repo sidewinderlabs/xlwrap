@@ -1,0 +1,138 @@
+/**
+ * Copyright 2007-2008 Institute for Applied Knowledge Processing, Johannes Kepler University Linz
+ *  
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@CHARSET "utf-8";
+
+body {
+	background-color: lightgray;
+	margin: 0px
+}
+
+#pagebox {
+	background-color: white;
+	margin: 15px;
+	padding: 15px;
+	border: #1d6e00 1px solid;
+}
+
+p,li,td,th {
+	font-family: Verdana,Arial,Sans;
+	font-size: 0.8em;
+	color: black;
+	line-height: 1.4 em;
+}
+
+code,pre,.code {
+	font-family: courier;
+	color: #333333;
+	white-space: pre;
+}
+
+pre,.code {
+	font-size: 0.8em;
+	background-color: #ffffd0;
+	padding: 5px;
+	border: 1px solid #cccca0;
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
+	
+blockquote {
+	font-style: italic;
+	font-family: Georgia, Times, Serif
+}
+
+img {
+	border: 0px
+}
+
+.green {
+	color: #1d6e00
+}
+
+h1 {
+	font-family: Verdana, Arial, Sans-serif;
+	font-size: 1.3em;
+	font-weight: bold;
+	color: #1d6e00;
+}
+
+.footertext {
+	margin-bottom: 0px;
+	margin-top: 25px;
+	font-size: 0.8em;
+}
+
+h2 {
+	font-family: Verdana, Arial, Sans-serif;
+	font-size: 1em;
+	font-weight: bold;
+	color: #1d6e00;
+	padding-top: 2px;
+	margin-top: 30px;
+	border-top: dashed #1d6e00 1px;
+	width: 50%
+}
+
+h3 {
+	font-family: Verdana, Arial, Sans-serif;
+	font-size: 0.8em;
+	font-weight: bold;
+	color: #1d6e00;
+	margin-top: 20px
+}
+
+li.p {
+	margin-bottom: 0.6em;
+}
+
+table {
+	border-collapse: collapse; border-spacing: 2px; border: 1px solid black;
+}
+
+td,th {
+	border: 1px gray inset;
+	padding-top: 1px; padding-bottom: 1px;
+	padding-left: 5px; padding-right: 5px;
+	font-weight: normal;
+}
+
+.h {
+	background-color: #e0e0e0;
+	border-bottom: 1px solid black;
+}
+
+.v {
+	background-color: #e0e0e0;
+	border-right: 1px solid black;
+}
+
+.vh {
+	background-color: #e0e0e0;
+	border-right: 1px solid black;
+	border-bottom: 1px solid black;
+}
+
+table.results {
+	border: 1px solid black; padding: 6px; border-spacing: 0; background-color: #c0c0f0
+}
+	
+td.results, th.results {
+	background-color: white; 
+	border: 1px solid #c0c0f0; 
+	padding: 2px;
+	width: 100px;
+}

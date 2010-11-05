@@ -1,0 +1,71 @@
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix ex:		<http://example.org/> .
+@prefix dc:     <http://purl.org/dc/elements/1.1/> .
+@prefix xl:		<http://purl.org/NET/xlwrap#> .
+@prefix scv:	<http://purl.org/NET/scovo#> .
+@prefix :       <http://myApplication/configuration#> .
+
+{ [] a xl:Mapping ;
+	xl:offline "false"^^xsd:boolean ;
+
+	xl:template [
+		xl:fileName "mappings/files/iswc09-example.xls" ;
+		xl:sheetNumber "0" ;
+		xl:constantGraph :SCOVODataset ;
+		xl:templateGraph :SCOVORevenues ;
+		xl:transform [
+			a rdf:Seq ;
+			rdf:_1 [
+				a xl:RowShift ;
+				xl:restriction "A4; B4:C4" ;
+				xl:breakCondition "LEFT(A4, 7) != 'Product'" ;
+				xl:steps "1" ;
+			] ;
+			rdf:_2 [
+				a xl:ColShift ;
+				xl:restriction "B2; B4:C4"^^xl:Expr ;
+				xl:breakCondition "ALLEMPTY(B4:C4)" ;
+				xl:steps "2" ;
+			] ;
+			rdf:_3 [
+				a xl:SheetShift ;
+				xl:restriction "#1.*"^^xl:Expr ;
+				xl:repeat "2"
+			] ;
+		]
+	] .
+}
+
+:SCOVODataset {
+	<> owl:import scv: .
+	
+	[ xl:uri "MAKEURI('Revenues')"^^xl:Expr ] a scv:Dataset ;
+	dc:title    "Revenues of Example, Inc. per year, country, and products" ;
+	dc:creator  "Andreas Langegger" ;
+	dc:date     "NOW()"^^xl:Expr .
+	
+	ex:Revenue    a scv:Item .
+	ex:ItemsSold  a scv:Item .
+	ex:Year     [ rdfs:label "Year" ; rdfs:subClassOf scv:Dimension ] .
+	ex:Product  [ rdfs:label "Product" ; rdfs:subClassOf scv:Dimension ] .
+	ex:Country  [ rdfs:label "Country" ; rdfs:subClassOf scv:Dimension ] .
+}
+
+:SCOVORevenues {
+	[ xl:uri "MAKEURI('Revenue_' & SHEETNAME(A1) & '_' & B2 & '_' & A4)"^^xl:Expr ] a ex:Revenue ;
+	scv:dataset [ xl:uri "MAKEURI('Revenues')"^^xl:Expr ] ;
+	scv:dimension [ xl:uri "MAKEURI(SHEETNAME(A1))"^^xl:Expr ; owl:sameAs "DBP_LOCALITY(SHEETNAME(A1))"^^xl:Expr ; a ex:Country ; rdfs:label "SHEETNAME(A1)"^^xl:Expr ] ;
+	scv:dimension [ xl:uri "MAKEURI(B2)"^^xl:Expr ; owl:sameAs "DBP_YEAR(B2)"^^xl:Expr ; a ex:Year ; rdfs:label "B2"^^xl:Expr ] ;
+	scv:dimension [ xl:uri "MAKEURI(A4)"^^xl:Expr ; a ex:Product ; rdfs:label "A4"^^xl:Expr ] ;
+	rdf:value    "C4"^^xl:Expr .
+
+	[ xl:uri "MAKEURI('ItemsSold_' & SHEETNAME(A1) & '_' & B2 & '_' & A4)"^^xl:Expr ] a ex:ItemsSold ;
+	scv:dataset [ xl:uri "MAKEURI('Revenues')"^^xl:Expr ] ;
+	scv:dimension [ xl:uri "MAKEURI(SHEETNAME(A1))"^^xl:Expr ; owl:sameAs "DBP_LOCALITY(SHEETNAME(A1))"^^xl:Expr ; a ex:Country ; rdfs:label "SHEETNAME(A1)"^^xl:Expr ] ;
+	scv:dimension [ xl:uri "MAKEURI(B2)"^^xl:Expr ; owl:sameAs "DBP_YEAR(B2)"^^xl:Expr ; a ex:Year ; rdfs:label "B2"^^xl:Expr ] ;
+	scv:dimension [ xl:uri "MAKEURI(A4)"^^xl:Expr ; a ex:Product ; rdfs:label "A4"^^xl:Expr ] ;
+	rdf:value    "B4"^^xl:Expr .
+}

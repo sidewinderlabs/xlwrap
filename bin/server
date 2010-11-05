@@ -1,0 +1,20 @@
+#!/bin/bash
+SEP=':'
+if [[ "$(uname)" =~ CYGWIN* ]]; then SEP=';'; fi
+CP="./build$SEP./xlwrap.jar$SEP./lib/logback/"
+
+for jar in lib/*.jar
+do
+  if [ ! -e "$jar" ]; then continue; fi
+  CP="$CP$SEP$jar"
+done
+
+if [[ "$@" =~ -c ]]; then
+	ARGS=$@
+else
+	ARGS="-c joseki-xlwrap.ttl $@"
+fi
+
+RUN="java -cp $CP -Xmx512M semwiq.endpoint $ARGS"
+#echo $RUN
+exec $RUN
