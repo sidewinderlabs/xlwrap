@@ -62,6 +62,9 @@ public class WorkbookFactory {
 	public static Workbook getWorkbook(String fileName) throws XLWrapException {
 		String ext = fileName.substring(fileName.lastIndexOf(".")+1, fileName.length());
 		Type t = extToType.get(ext);
+		if (t == null) {
+			t = extToType.get("csv");
+		}
 		try {
 			switch(t) {
 			case MSEXCEL:
