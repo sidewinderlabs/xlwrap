@@ -282,14 +282,14 @@ public class CSVSheet implements Sheet {
 			StringBuffer text = new StringBuffer();
 			whitespace();
 			boolean usingDelim = expect(delim, delimOpt);
-			text.append(value());
+			text.append(value(usingDelim));
 			expect(delim, delimOpt);
 			if (usingDelim) {
 				// delimiter escaping by doubling the delimiter
 				while (nextIsDelimStart()) {
 					text.append(delim);
 					expect(delim, true);
-					text.append(value());
+					text.append(value(false));
 					expect(delim, true);
 				}
 			}
@@ -348,11 +348,11 @@ public class CSVSheet implements Sheet {
 			return hasNext() && next == delimStart;
 		}
 		
-		private String value() {
+		private String value(boolean ignoreSep) {
 			int start = idx-1;
 			for (;;) {
 				if (delim != null && next == delimStart ||
-					next == sepStart) { // delim or sep reached
+					!ignoreSep && next == sepStart) { // delim or sep reached
 					return new String(buf, start, idx-1-start);					
 				}
 				
