@@ -90,7 +90,7 @@ public class CSVParseConfig {
 		}
 		
 		String first = line.substring(0, 1);
-		String valDelimiter = "";
+		String valDelimiter = "\"";
 		if (first.equals("\""))
 			valDelimiter = "\"";
 		else if (first.equals("'"))
