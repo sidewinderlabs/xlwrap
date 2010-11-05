@@ -27,7 +27,8 @@ import at.jku.xlwrap.map.expr.XLExpr;
  *
  */
 public class E_Date extends XLExprValue<Date> {
-	public static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	//public static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	public static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 	
 	/**
 	 * constructor which parses date from strings based on constant DATE_FORMAT
