@@ -16,7 +16,9 @@
 package at.jku.xlwrap.map.expr;
 
 import java.text.ParseException;
+import java.text.NumberFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import at.jku.xlwrap.common.XLWrapException;
 import at.jku.xlwrap.exec.ExecutionContext;
@@ -108,16 +110,12 @@ public class TypeCast {
 			return new E_Long(((E_Boolean) value).getValue() ? 1L : 0L);
 		
 		else if (value instanceof E_String) {
-			// try long first, if string contains a comma, it will fail
 			try {
-				Long l = Long.parseLong(((E_String) value).getValue());
-				return new E_Long(l);
-			} catch (Exception ignore) {	}
-
-			// try double now, provide detailed exception e if fails
-			try {
-				Double d = Double.parseDouble(((E_String) value).getValue());
-				return new E_Double(d);
+				Number number = NumberFormat.getNumberInstance(Locale.UK).parse(((E_String) value).getValue());
+				if (number instanceof Long) {
+					return new E_Long(number.longValue());
+				} else
+					return new E_Double(number.doubleValue());
 			} catch (Exception e) {
 				throw new XLWrapException("Cannot cast " + value + " to number.", e);
 			}
