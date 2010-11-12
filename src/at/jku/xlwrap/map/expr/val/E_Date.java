@@ -15,6 +15,8 @@
  */
 package at.jku.xlwrap.map.expr.val;
 
+import org.pojava.datetime.DateTime;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -27,15 +29,14 @@ import at.jku.xlwrap.map.expr.XLExpr;
  *
  */
 public class E_Date extends XLExprValue<Date> {
-	//public static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	public static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+	public static final DateTime DATE_TIME = new DateTime();
 	
 	/**
 	 * constructor which parses date from strings based on constant DATE_FORMAT
 	 * @throws ParseException
 	 */
 	public E_Date(String value) throws ParseException {
-		super(DATE_FORMAT.parse(value));
+		super(DATE_TIME.parse(value).toDate());
 	}
 	
 	/**
@@ -53,7 +54,7 @@ public class E_Date extends XLExprValue<Date> {
 	 * @throws ParseException
 	 */
 	public static Date parse(String date) throws ParseException {
-		return DATE_FORMAT.parse(date);
+		return DATE_TIME.parse(date).toDate();
 	}
 	
 	@Override

@@ -18,6 +18,8 @@ package at.jku.xlwrap.dataset;
 import at.jku.xlwrap.common.Constants;
 import at.jku.xlwrap.vocab.XLWrap;
 
+import org.pojava.datetime.DateTimeConfig;
+
 import com.hp.hpl.jena.assembler.Assembler;
 import com.hp.hpl.jena.assembler.Mode;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -59,7 +61,8 @@ public class XLWrapDatasetAssembler extends DatasetAssembler {
 			watchDir = System.getProperty(Constants.SYSTEMPROPERTY_WATCHDIR);
 		else
 			watchDir = Constants.DEFAULT_WATCH_DIR;
-		
+
+		DateTimeConfig.globalEuropeanDateFormat();
 		try {
 			return new XLWrapDataset(cacheDir, watchDir);
 		} catch (Exception e) {
