@@ -37,7 +37,7 @@ import at.jku.xlwrap.spreadsheet.XLWrapEOFException;
 public class CSVSheet implements Sheet {
 	private static final Logger log = LoggerFactory.getLogger(CSVSheet.class);
 	
-	private static final int DEFAULT_CACHE_SIZE = 3000;
+	private static final int DEFAULT_CACHE_SIZE = 40000;
 	
 	private final BufferedReader in;
 	private final String file;
