@@ -46,5 +46,6 @@
 	<classpathentry kind="lib" path="lib/jsp-2.1-glassfish-9.1.1.B60.25.p0.jar"/>
 	<classpathentry kind="lib" path="lib/jsp-2.1-jetty-6.1.18.jar"/>
 	<classpathentry kind="lib" path="lib/jsp-api-2.1-glassfish-9.1.1.B60.25.p0.jar"/>
+	<classpathentry kind="lib" path="lib/pojava-2.5.3.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
