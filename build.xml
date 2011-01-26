@@ -159,6 +159,9 @@
 			<fileset dir="${java.builddir}">
 	    		<include name="**/*"/>
 			</fileset>
+            <manifest>
+                <attribute name="Main-Class" value="at.jku.xlwrap.engine.Driver" />
+			</manifest>
 		</jar>
 	</target>
 
