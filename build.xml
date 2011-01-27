@@ -127,7 +127,7 @@
 			verbose="on"
 			deprecation="on"
 			debug="on"
-			target="1.5"
+			target="1.6"
 		/>
 		<copy todir="${java.builddir}">
 			<fileset dir="${java.sourcedir}"
