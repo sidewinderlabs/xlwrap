@@ -34,10 +34,10 @@ import at.jku.xlwrap.map.expr.val.E_BlankNode;
 import at.jku.xlwrap.map.expr.val.E_Boolean;
 import at.jku.xlwrap.map.expr.val.E_Date;
 import at.jku.xlwrap.map.expr.val.E_Double;
+import at.jku.xlwrap.map.expr.val.E_List;
 import at.jku.xlwrap.map.expr.val.E_Long;
 import at.jku.xlwrap.map.expr.val.E_String;
 import at.jku.xlwrap.map.expr.val.E_URI;
-import at.jku.xlwrap.map.expr.val.XLExprNumber;
 import at.jku.xlwrap.map.expr.val.XLExprValue;
 import at.jku.xlwrap.map.range.AnyRange;
 import at.jku.xlwrap.map.range.BoxRange;
@@ -56,6 +56,7 @@ import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.AnonId;
+import com.hp.hpl.jena.rdf.model.Bag;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
@@ -277,7 +278,7 @@ public class Utils {
 		char[] letters = alpha.toUpperCase().toCharArray();
 		int index = 0;
 		for (int i = 0; i < letters.length; i++)
-			index += (((int) letters[letters.length-i-1]) - 64) * (Math.pow(26, i)); // A is 64
+			index += ((letters[letters.length-i-1]) - 64) * (Math.pow(26, i)); // A is 64
 		return --index;
 	}
 
@@ -413,8 +414,14 @@ public class Utils {
 		
 		else if (ev instanceof E_BlankNode)
 			return target.createResource((AnonId) ev.getValue());
-		
-		else
+        else if (ev instanceof E_List) {
+            Bag list = target.createBag();
+            E_List eList = (E_List) ev;
+            for (XLExprValue<?> value : eList.getValue()) {
+                list.add(createNode(target, value));
+            }
+            return list;
+        }		else
 			return target.createTypedLiteral(ev.getValue());
 	}
 	

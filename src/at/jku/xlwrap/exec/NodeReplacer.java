@@ -27,6 +27,7 @@ import at.jku.xlwrap.common.Utils;
 import at.jku.xlwrap.common.XLWrapException;
 import at.jku.xlwrap.map.expr.TypeCast;
 import at.jku.xlwrap.map.expr.XLExpr;
+import at.jku.xlwrap.map.expr.val.E_List;
 import at.jku.xlwrap.map.expr.val.XLExprValue;
 import at.jku.xlwrap.spreadsheet.XLWrapEOFException;
 import at.jku.xlwrap.vocab.XLWrap;
@@ -104,7 +105,22 @@ public class NodeReplacer {
 					if (log.isDebugEnabled())
 						log.debug("Ignoring xl:Expr for xl:uri or xl:id because it evaluated to null: " + expr + ".");
 					deletedResources.add(s.getSubject());
-				} else {
+                } else if (ev instanceof E_List) {
+                    for (XLExprValue<?> value : ((E_List) ev).getValue()) {
+                        String val = TypeCast.toString(value);
+
+                        // replace URIs now
+                        if (p.getURI().equals(XLWrap.uri.getURI())) {
+                            replacedURIs.put(s.getSubject(),
+                                tmplModel.createResource(val));
+
+                        } else if (p.getURI().equals(XLWrap.id.getURI()))
+                            replacedBnodes.put(
+                                s.getSubject(),
+                                tmplModel.createResource(AnonId.create("id_"
+                                        + val)));
+                    }
+                } else {
 					String val = TypeCast.toString(ev);
 
 					// replace URIs now
