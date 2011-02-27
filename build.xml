@@ -154,13 +154,17 @@
 		<mkdir dir="${java.builddir-tests}" />
 	</target>
 	
-	<target name="jar" depends="build">
-		<jar destfile="${target.dir}/xlwrap.jar" index="true">
+	<target name="jar" depends="build">    
+    <manifestclasspath property="jar.classpath" jarfile="${target.dir}/xlwrap.jar"> 
+      <classpath refid="classpath"/>
+    </manifestclasspath>   
+		<jar destfile="${target.dir}/xlwrap.jar" index="false">
 			<fileset dir="${java.builddir}">
 	    		<include name="**/*"/>
 			</fileset>
-            <manifest>
-                <attribute name="Main-Class" value="at.jku.xlwrap.engine.Driver" />
+      <manifest>
+          <attribute name="Main-Class" value="at.jku.xlwrap.engine.Driver" />
+          <attribute name="Class-Path" value="${jar.classpath}"/>
 			</manifest>
 		</jar>
 	</target>
