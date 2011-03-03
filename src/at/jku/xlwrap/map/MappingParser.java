@@ -324,8 +324,7 @@ public class MappingParser {
 		if (s == null)
 			return null;
 		else
-			throw new RuntimeException(XLWrap.skipCondition + " is not yet supported.");
-//			return s.getString();
+			return s.getString();
 	}
 
 	/**

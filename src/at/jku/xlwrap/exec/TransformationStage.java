@@ -77,6 +77,9 @@ public abstract class TransformationStage implements TransformationExector {
 	/** this = stage break condition + base break conditions of subs */
 	private Map<TransformationStage, XLExpr> breakConditions;
 	
+	/** this = stage skip condition + base skip conditions of subs */
+	private Map<TransformationStage, XLExpr> skipConditions;
+	
 	
 	/**
 	 * constructor
@@ -85,6 +88,7 @@ public abstract class TransformationStage implements TransformationExector {
 		this.context = context;
 		this.restrictions = new Hashtable<TransformationStage, Range>();
 		this.breakConditions = new Hashtable<TransformationStage, XLExpr>();
+		this.skipConditions = new Hashtable<TransformationStage, XLExpr>();
 	}
 	
 	/**
@@ -113,7 +117,8 @@ public abstract class TransformationStage implements TransformationExector {
 				// need to initially apply transform to make replacements in case of Sheet/FileRepeat/etc.
 				exec.initStage(activeTmpl.getTemplateModel(),
 						transf.getRestriction(),
-						transf.getBreakCondition()
+						transf.getBreakCondition(),
+						transf.getSkipCondition()
 						);
 				
 				if (parent != null)
@@ -123,28 +128,33 @@ public abstract class TransformationStage implements TransformationExector {
 				parent = exec;
 			}
 		
-			exec.setSubRestrictionsAndConditions(new Hashtable<TransformationStage, Range>(), new Hashtable<TransformationStage, XLExpr>());
+			exec.setSubRestrictionsAndConditions(new Hashtable<TransformationStage, Range>(), new Hashtable<TransformationStage, XLExpr>(), new Hashtable<TransformationStage, XLExpr>());
 			return exec;
 		} else
 			return null; // no transformations
 	}
 	
 	/**
-	 * set restrictions and break conditions of sub stages (bottom-up recursion)
+	 * set restrictions and break/skip conditions of sub stages (bottom-up recursion)
 	 * 
 	 * @param baseRestrictionsOfSubs collected restrictions of subs
 	 * @param baseBreakConditionsOfSubs collected break conditions of subs
+	 * @param baseSkipConditionsOfSubs collected skip conditions of subs
 	 */
-	private void setSubRestrictionsAndConditions(Map<TransformationStage, Range> baseRestrictionsOfSubs, Map<TransformationStage, XLExpr> baseBreakConditionsOfSubs) {
+	private void setSubRestrictionsAndConditions(Map<TransformationStage, Range> baseRestrictionsOfSubs, Map<TransformationStage, XLExpr> baseBreakConditionsOfSubs, Map<TransformationStage, XLExpr> baseSkipConditionsOfSubs) {
 		for (TransformationStage exec : baseRestrictionsOfSubs.keySet()) {
 			restrictions.put(exec, baseRestrictionsOfSubs.get(exec).copy());
 			breakConditions.put(exec, baseBreakConditionsOfSubs.get(exec).copy());
+			if (baseSkipConditionsOfSubs.containsKey(exec))
+				skipConditions.put(exec, baseSkipConditionsOfSubs.get(exec).copy());
 		}
 		
 		baseRestrictionsOfSubs.put(this, getStageRestriction()); 	// can use reference now, will copy later
 		baseBreakConditionsOfSubs.put(this, getStageBreakCondition());		// can use reference now, will copy later
+		if (getStageSkipCondition() != null)
+			baseSkipConditionsOfSubs.put(this, getStageSkipCondition());		// can use reference now, will copy later
 		if (parent != null) // recurse
-			parent.setSubRestrictionsAndConditions(baseRestrictionsOfSubs, baseBreakConditionsOfSubs);
+			parent.setSubRestrictionsAndConditions(baseRestrictionsOfSubs, baseBreakConditionsOfSubs, baseSkipConditionsOfSubs);
 	}
 
 	/**
@@ -152,12 +162,14 @@ public abstract class TransformationStage implements TransformationExector {
 	 * @param stageTmpl
 	 * @param stageRestriction
 	 * @param stageBreakCondition
+	 * @param stageSkipCondition
 	 * @throws XLWrapException
 	 */
-	private void initStage(Model stageTmpl, Range stageRestriction, XLExpr stageBreakCondition) throws XLWrapException {
+	private void initStage(Model stageTmpl, Range stageRestriction, XLExpr stageBreakCondition, XLExpr stageSkipCondition) throws XLWrapException {
 		this.stageTmpl = Utils.copyModel(stageTmpl);
 		setStageRestriction(stageRestriction.copy());
 		setStageBreakCondition(stageBreakCondition.copy());
+		setStageSkipCondition(stageSkipCondition.copy());
 		
 		// post-order:
 		init();
@@ -175,6 +187,13 @@ public abstract class TransformationStage implements TransformationExector {
 		if (hasMoreTransformations() &&
 			applyTransformation() &&
 			!breakConditionTrue(getStageBreakCondition(), context)) {
+			
+			if (skipConditionTrue(getStageSkipCondition(), context)) {
+				if (log.isTraceEnabled())
+					log.trace("Skipping transformation due to skip condition: " + getStageBreakCondition());
+				return proceed();
+			}
+			
 			return true;
 
 			// proceed with next higher stage
@@ -190,6 +209,8 @@ public abstract class TransformationStage implements TransformationExector {
 					for (TransformationStage key : restrictions.keySet()) {
 						restrictions.put(key, parent.restrictions.get(key).copy());
 						breakConditions.put(key, parent.breakConditions.get(key).copy());
+						if (parent.skipConditions.containsKey(key))
+							skipConditions.put(key, parent.skipConditions.get(key).copy());
 					}
 					
 					init();
@@ -256,6 +277,9 @@ public abstract class TransformationStage implements TransformationExector {
 
 		// transform stage break condition
 		XLExprWalker.walkPostOrder(getStageBreakCondition(), new TransformRangeReferences(this, stageRestriction));
+		// transform stage skip condition
+		if (getStageSkipCondition() != null)
+			XLExprWalker.walkPostOrder(getStageSkipCondition(), new TransformRangeReferences(this, stageRestriction));
 		// copy previous restriction
 		Range prevRestriction = stageRestriction.copy();
 		// transform stage restriction
@@ -276,6 +300,7 @@ public abstract class TransformationStage implements TransformationExector {
 	 */
 	private void transformSubRestrictionsAndConditions(TransformationStage key, Range restriction) throws XLWrapException {
 		XLExprWalker.walkPostOrder(breakConditions.get(key), new TransformRangeReferences(this, restriction));
+		XLExprWalker.walkPostOrder(skipConditions.get(key), new TransformRangeReferences(this, restriction));
 		restrictions.put(key, transform(restrictions.get(key), restriction));
 
 		if (key.sub != null)
@@ -307,6 +332,14 @@ public abstract class TransformationStage implements TransformationExector {
 		breakConditions.put(this, condition);
 	}
 	
+	public XLExpr getStageSkipCondition() {
+		return skipConditions.get(this);
+	}
+	
+	public void setStageSkipCondition(XLExpr condition) {
+		skipConditions.put(this, condition);
+	}
+	
 	/**
 	 * common method for checking the break condition,
 	 * 
@@ -324,6 +357,23 @@ public abstract class TransformationStage implements TransformationExector {
 		}
 	}
 
+	/**
+	 * common method for checking the skip condition,
+	 * 
+	 * @param skipCondition
+	 * @param context
+	 * @return
+	 * @throws XLWrapException 
+	 */
+	public boolean skipConditionTrue(XLExpr skipCondition, ExecutionContext context) throws XLWrapException {
+		try {
+			return TypeCast.toBoolean(skipCondition.eval(context), context);
+		} catch (XLWrapEOFException e) {
+			log.warn("Unable to evaluate skip condition, skip condition forced to FALSE.");
+			return false;
+		}
+	}
+	
 	/**
 	 * @return a status string
 	 */
