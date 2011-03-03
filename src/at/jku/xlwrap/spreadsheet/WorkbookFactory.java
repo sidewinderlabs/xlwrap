@@ -36,22 +36,41 @@ import at.jku.xlwrap.spreadsheet.opendoc.OpenDocumentWorkbook;
 
 import com.hp.hpl.jena.util.FileUtils;
 
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
+import org.apache.tika.sax.BodyContentHandler;
+import org.xml.sax.ContentHandler;
+
 /**
  * @author dorgon
  *
  */
 public class WorkbookFactory {
 	public static enum Type {
-		MSEXCEL, OPENDOCUMENT, OOFICE, CSV
+		MSEXCEL, OPENDOCUMENT, OOFICE, OFFICEOPENXML, CSV, UNKNOWN
 	}
 
 	public static final Map<String, Type> extToType= new Hashtable<String, Type>();
 	static {
 		extToType.put("xls", Type.MSEXCEL);
+		extToType.put("xlsx", Type.OFFICEOPENXML);
 		extToType.put("ods", Type.OPENDOCUMENT);
 		extToType.put("sxc", Type.OOFICE);
 		extToType.put("csv", Type.CSV);
 		extToType.put("txt", Type.CSV);
+	}
+
+	public static final Map<String, Type> mimeToType= new Hashtable<String, Type>();
+	static {
+		mimeToType.put("application/vnd.ms-excel", Type.MSEXCEL);
+		mimeToType.put("application/x-tika-msoffice", Type.MSEXCEL);
+		mimeToType.put("application/vnd.oasis.opendocument.spreadsheet", Type.OPENDOCUMENT);
+		mimeToType.put("application/vnd.sun.xml.calc", Type.OOFICE);
+		mimeToType.put("application/x-tika-ooxml", Type.OFFICEOPENXML);
+		mimeToType.put("text/plain", Type.CSV);
+		mimeToType.put("text/csv", Type.CSV);
 	}
 	
 	/**
@@ -63,7 +82,7 @@ public class WorkbookFactory {
 		String ext = fileName.substring(fileName.lastIndexOf(".")+1, fileName.length());
 		Type t = extToType.get(ext);
 		if (t == null) {
-			t = extToType.get("csv");
+			t = getTypeFromContent(fileName);			
 		}
 		try {
 			switch(t) {
@@ -82,13 +101,48 @@ public class WorkbookFactory {
 				return new CSVWorkbook(open(fileName), fileName);
 				
 			default:
-				throw new XLWrapException("Cannot open document '" + fileName + "', extension '." + ext + "' is not recognized.");
+				throw new XLWrapException("Cannot open document '" + fileName + "', file type is not recognized.");
 			}
 		} catch (MalformedURLException e) {
 			throw new XLWrapException("Failed to open spreadsheet from <" + fileName + ">.", e);
 		} catch (Throwable e) {
 			throw new XLWrapException("Failed to open spreadsheet file '" + fileName + "'.", e);
 		}
+	}
+	
+	/**
+	 * @param fileName
+	 * @return Type
+	 * @throws XLWrapException 
+	 */
+	private static Type getTypeFromContent(String fileName) throws XLWrapException {
+		Type type = null;
+	    InputStream is = null;
+	    try {
+	      is = open(fileName);
+	      ContentHandler contenthandler = new BodyContentHandler();
+	      Metadata metadata = new Metadata();
+	      metadata.set(Metadata.RESOURCE_NAME_KEY, fileName);
+	      Parser parser = new AutoDetectParser();
+	      parser.parse(is, contenthandler, metadata, new ParseContext());
+	      String mimeType = metadata.get(Metadata.CONTENT_TYPE);
+	      if (mimeType != null)
+	    	  type = mimeToType.get(mimeType);
+	    } catch (Exception e) {
+	    	throw new XLWrapException("Unable to read file " + fileName, e);
+	    } finally {
+	        if (is != null) {
+	        	try {
+	        		is.close();
+	        	} catch (Exception exc) {
+	        		// ignore
+	        	}
+	        }
+	    }	
+	    if (type == null) {
+	    	type = Type.UNKNOWN;
+	    }
+	    return type;
 	}
 
 	/**
