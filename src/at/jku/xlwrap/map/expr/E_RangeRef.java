@@ -81,8 +81,7 @@ public class E_RangeRef extends XLExpr0 {
 			try {
 				cell = context.getCell(cr);
 			} catch (XLWrapEOFException eof) {
-				log.warn("End of file reached while evaluating " + this);
-				return null;
+				throw eof;
 			} catch (Exception e) {
 				throw new XLWrapException("Failed to get cell " + cr + ".", e); 
 			}

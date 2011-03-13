@@ -63,7 +63,7 @@ public class CSVSheet implements Sheet {
 	
 	
 	/** number of columns, determined at creation */
-	private final int columns;
+	private int columns;
 	
 	/** number of rows, unknown, assume maximum */
 	private final int rows = Integer.MAX_VALUE;
@@ -82,7 +82,16 @@ public class CSVSheet implements Sheet {
 		
 		// init
 		readRow();
-		this.columns = getRow(0).columns();		
+		
+		// determine number of columns
+		for (int i=0; i<this.rows; i++) {
+			Row row = getRow(i);
+			if (row == null)
+				break;
+			int cols = row.columns();
+			if (cols > this.columns)
+				this.columns = cols;
+		}
 	}
 
 	/**

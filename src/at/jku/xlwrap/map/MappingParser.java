@@ -107,8 +107,27 @@ public class MappingParser {
 			
 			// parse map templates
 			StmtIterator tIt = mRes.listProperties(XLWrap.template);
-			while (tIt.hasNext())
-				mapping.add(parseMapTemplate(tIt.next().getResource()));
+			while (tIt.hasNext()) {
+				Resource m = tIt.next().getResource();
+				String fileName = null;
+				Statement fn = m.getProperty(XLWrap.fileName);
+				if (fn == null)
+					throw new XLWrapException("Required property " + XLWrap.fileName + " not found for xl:Mapping " + m + ".");
+				else
+					fileName = fn.getString();
+				// handle multiple files (comma-separated)
+				if (fileName.contains(",")) {
+					String[] fileNames = fileName.split(",");
+					for (String file : fileNames) {
+						m.removeAll(XLWrap.fileName);
+						m.addProperty(XLWrap.fileName, file.trim());
+						mapping.add(parseMapTemplate(m));
+					}
+				} else {
+					// single file
+					mapping.add(parseMapTemplate(m));
+				}
+			}
 			tIt.close();
 			
 			// offline flag set?

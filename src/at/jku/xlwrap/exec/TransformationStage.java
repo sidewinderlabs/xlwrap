@@ -258,7 +258,7 @@ public abstract class TransformationStage implements TransformationExector {
 				
 				// check sheet bounds
 				if (!boundsCheck.withinSheetBounds(transformed)) {
-					log.debug("At least one expression out of sheet bounds, proceeding with next stage.");
+					log.trace("At least one expression out of sheet bounds, proceeding with next stage.");
 					return false;
 				}
 				

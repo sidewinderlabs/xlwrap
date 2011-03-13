@@ -31,12 +31,14 @@ import at.jku.xlwrap.spreadsheet.XLWrapEOFException;
 import at.jku.xlwrap.vocab.XLWrap;
 
 import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.mem.GraphMem;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.rdf.model.impl.ModelCom;
 
 /**
  * @author dorgon
@@ -69,7 +71,10 @@ public class XLWrapMaterializer {
 	}
 	
 	public Model generateModel(XLWrapMapping mapping) throws XLWrapException {
-		return generateModel(mapping, ModelFactory.createDefaultModel());
+		// ModelFactory.createDefaultModel() creates a GraphMemFaster, which contains a bug and
+		// may lead to an ArrayIndexOutOfBoundsException. Therefore, instantiate ModelCom manually.
+		//return generateModel(mapping, ModelFactory.createDefaultModel());
+		return generateModel(mapping, new ModelCom( new GraphMem( ModelFactory.Standard ) ) );
 	}
 	
 	/**
