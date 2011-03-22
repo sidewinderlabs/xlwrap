@@ -42,11 +42,13 @@ public class E_LogicalOr extends XLExpr2 {
 	@Override
 	public XLExprValue<?> eval(ExecutionContext context) throws XLWrapException, XLWrapEOFException {
 		XLExprValue<?> v1 = arg1.eval(context);
-		if (v1 == null)
-			return null;
 		XLExprValue<?> v2 = arg2.eval(context);
-		if (v2 == null)
+		if (v1==null && v2 == null)
 			return null;
+		else if (v1==null)
+			v1 = E_Boolean.FALSE;
+		else if (v2==null)
+			v2 = E_Boolean.FALSE;
 		
 		return TypeCast.toBoolean(v1, context) || TypeCast.toBoolean(v2, context) ? E_Boolean.TRUE : E_Boolean.FALSE;
 	}
