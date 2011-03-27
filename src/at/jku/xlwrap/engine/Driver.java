@@ -57,25 +57,36 @@ public class Driver {
     public void run() throws XLWrapException, FileNotFoundException {
         if (args.length == 0) {
             System.err.println("Missing input file name.\n"
-                    + "Syntax: input [output] [var1=val1] [var2=val2] ...");
+                    + "Syntax: input [output] [options] [var1=val1] [var2=val2] ...\n"
+                    + "Options:\n"
+            		+ "\t-lang=[language]\tDefines the output serialization language. Can be RDF/XML (default), RDF/XML-ABBREV, N-TRIPLE, TURTLE, TTL or N3");
             return;
         }
 
         // Read the input file.
         String url = args[0];
-        
-    	// replace variables
-        if (args.length > 1) {
-        	Map<String, String> variables = new HashMap<String, String>();
-        	for (int i=1; i<args.length; i++) {
-        		if (args[i].indexOf("=") < 0)
-        			continue;
-        		String[] var = args[i].split("=");
-        		variables.put(var[0], var[1].replace("\"", ""));
-        	}
-        	if (! variables.isEmpty())
-        		url = replaceVariables(url, variables);
-        }
+        String outfile = null;
+
+        // parse options
+        String lang = "RDF/XML";
+    	Map<String, String> variables = new HashMap<String, String>();
+    	for (int i=1; i<args.length; i++) {
+    		if (args[i].indexOf("=") < 0) {
+    			outfile = args[i];
+    		} else {
+	    		String[] var = args[i].split("=");
+	    		String varName = var[0];
+	    		String varValue = var[1].replace("\"", "");
+	    		if ("-lang".equals(varName)) {
+	    			lang = varValue;
+	    		} else {
+	    			variables.put(varName, varValue);
+	    		}
+    		}
+    	}
+    	// replace variables (if any)
+    	if (! variables.isEmpty())
+    		url = replaceVariables(url, variables);
 
         XLWrapMapping map = MappingParser.parse(url);
         XLWrapMaterializer mat = new XLWrapMaterializer();
@@ -85,10 +96,7 @@ public class Driver {
         prettifyNamespaces(m);
 
         // get or compute the output file name
-        String outfile;
-        if (args.length == 2) {
-            outfile = args[1];
-        } else {
+        if (outfile == null) {
             File f = new File(args[0]);
             outfile = f.getName();
             int dotPos = outfile.lastIndexOf('.');
@@ -99,7 +107,7 @@ public class Driver {
         }
 
         // Write it!
-        m.write(new FileOutputStream(outfile), "RDF/XML");
+        m.write(new FileOutputStream(outfile), lang);
     }
 
     /**
