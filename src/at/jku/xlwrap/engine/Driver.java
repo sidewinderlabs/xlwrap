@@ -1,8 +1,20 @@
 package at.jku.xlwrap.engine;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import at.jku.xlwrap.common.XLWrapException;
 import at.jku.xlwrap.exec.XLWrapMaterializer;
@@ -21,6 +33,8 @@ import com.hp.hpl.jena.rdf.model.NsIterator;
  * 
  */
 public class Driver {
+
+	private static final Logger log = LoggerFactory.getLogger(Driver.class);
 
     private final String[] args;
 
@@ -43,12 +57,27 @@ public class Driver {
     public void run() throws XLWrapException, FileNotFoundException {
         if (args.length == 0) {
             System.err.println("Missing input file name.\n"
-                    + "Syntax: input [output]");
+                    + "Syntax: input [output] [var1=val1] [var2=val2] ...");
             return;
         }
 
         // Read the input file.
-        XLWrapMapping map = MappingParser.parse(args[0]);
+        String url = args[0];
+        
+    	// replace variables
+        if (args.length > 1) {
+        	Map<String, String> variables = new HashMap<String, String>();
+        	for (int i=1; i<args.length; i++) {
+        		if (args[i].indexOf("=") < 0)
+        			continue;
+        		String[] var = args[i].split("=");
+        		variables.put(var[0], var[1].replace("\"", ""));
+        	}
+        	if (! variables.isEmpty())
+        		url = replaceVariables(url, variables);
+        }
+
+        XLWrapMapping map = MappingParser.parse(url);
         XLWrapMaterializer mat = new XLWrapMaterializer();
         Model m = mat.generateModel(map);
 
@@ -116,5 +145,57 @@ public class Driver {
             }
         }
 
+    }
+    
+    /**
+     * Replaces variables in a TRIG file and returns the URL of the merged file
+     * @param url the URL to the input TRIG file
+     * @throws XLWrapException
+     */
+    private String replaceVariables(String url, Map<String, String> variables) throws XLWrapException {
+    	try {
+    	if (url.indexOf(":") < 0)
+    		url =  "file:" + url;
+    	URL inputURL = new URL(url);
+    	BufferedReader br = null;
+    	BufferedWriter bw = null;
+    	try {
+    		String newLine = System.getProperty("line.separator");
+    	    File merged = File.createTempFile("xlwrap_merged_", ".trig");
+    	    merged.deleteOnExit();
+    	    if (log.isDebugEnabled())
+    	    	log.debug("Replacing variables " + variables +" in temporary file: " + merged.getAbsolutePath());
+    		
+    		URLConnection urlConnection = inputURL.openConnection();
+    		br = new BufferedReader(
+                    new InputStreamReader(
+                    		urlConnection.getInputStream()));
+    		bw = new BufferedWriter(
+    				new FileWriter(merged));
+
+    		String inputLine;
+    		while ((inputLine = br.readLine()) != null) {
+    			String mergedLine = inputLine;
+    			for (Map.Entry<String, String> var : variables.entrySet()) 
+    				mergedLine = mergedLine.replace("${"+var.getKey()+"}", var.getValue());			
+    			bw.write(mergedLine + newLine);
+    		}
+    		bw.flush();
+            return merged.toURI().toString();
+    	} finally {
+    		if (br != null) {
+    			try {
+    				br.close();
+    			} catch (IOException ignore) {}
+    		}
+    		if (bw != null) {
+    			try {
+    				bw.close();
+    			} catch (IOException ignore) {}
+    		}
+    	}
+    	} catch (Exception exc) {
+    		throw new XLWrapException("Unable to merge variables into TRIG file: " + exc.getMessage());
+    	}
     }
 }
