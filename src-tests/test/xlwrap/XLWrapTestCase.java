@@ -37,6 +37,7 @@ public class XLWrapTestCase {
 	}
 	
 	public static String TEST_FILE_DATA1 = "testing/test-data1.xls";
+	public static String TEST_FILE_DATA1_POI = "testing/test-data1.xlsx";
 	public static String TEST_FILE_DATA1_CSV = "testing/test-data1.csv";
 	public static String TEST_FILE_DATA1_ODS = "testing/test-data1.ods";
 	public static String TEST_SHEET_DATA1_1 = "Tests 1";
