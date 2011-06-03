@@ -2,6 +2,7 @@
 #netbeans files
 build.xml
 manifest.mf
+nbbuild.xml
 
 #Ignore directories
 #netbeans files
