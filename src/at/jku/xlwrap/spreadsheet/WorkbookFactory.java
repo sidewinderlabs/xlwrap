@@ -33,6 +33,7 @@ import at.jku.xlwrap.spreadsheet.csv.CSVParseConfig;
 import at.jku.xlwrap.spreadsheet.csv.CSVWorkbook;
 import at.jku.xlwrap.spreadsheet.excel.ExcelWorkbook;
 import at.jku.xlwrap.spreadsheet.opendoc.OpenDocumentWorkbook;
+import at.jku.xlwrap.spreadsheet.poi.PoiWorkbook;
 
 import com.hp.hpl.jena.util.FileUtils;
 
@@ -87,8 +88,11 @@ public class WorkbookFactory {
 		try {
 			switch(t) {
 			case MSEXCEL:
+                                //Suggest to still use jxl as Apachee poi can not handle Excel 95 files.
 				return new ExcelWorkbook(open(fileName), fileName);
-
+                        case OFFICEOPENXML:
+                                //Use apache Poi
+                                return new PoiWorkbook(open(fileName), fileName);
 			case OPENDOCUMENT:
 				File f = null;
 				if (FileUtils.isURI(fileName))
