@@ -102,4 +102,8 @@ public class NullCell implements Cell {
     public String getCellInfo() {
         return "Null Cell";
     }
+
+    public String getDateFormat() throws XLWrapException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

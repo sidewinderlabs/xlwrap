@@ -27,6 +27,7 @@ import at.jku.xlwrap.common.XLWrapException;
 import at.jku.xlwrap.spreadsheet.Cell;
 import at.jku.xlwrap.spreadsheet.FormatAnnotation;
 import at.jku.xlwrap.spreadsheet.TypeAnnotation;
+import org.apache.poi.ss.usermodel.CellStyle;
 
 /**
  * @author Christian based on code by dorgon
@@ -61,6 +62,11 @@ public class PoiCell implements Cell {
         return cell.getDateCellValue();
     }
 
+    public String getDateFormat() throws XLWrapException {
+        CellStyle cellStyle = cell.getCellStyle();
+        return cellStyle.getDataFormatString();
+    }
+
     @Override
     public double getDouble() throws XLWrapException {
         return cell.getNumericCellValue();
@@ -91,7 +97,7 @@ public class PoiCell implements Cell {
                 return "";
             case NUMBER:
                 double doubleValue = cell.getNumericCellValue();
-                System.out.println(doubleValue);
+                //ystem.out.println(doubleValue);
                 long longValue = Math.round(doubleValue);
                 if (longValue == doubleValue){
                     return longValue + "";
@@ -162,4 +168,5 @@ public class PoiCell implements Cell {
     public String getCellInfo() {
         return file + ", sheet '" + sheet + "', " + Utils.indexToAlpha(cell.getColumnIndex()) + (cell.getRowIndex()+1);
     }
+
 }

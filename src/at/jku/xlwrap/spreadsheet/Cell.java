@@ -61,6 +61,8 @@ public interface Cell {
 	 */
 	public Date getDate() throws XLWrapException;
 
+        public String getDateFormat() throws XLWrapException;
+
 	/**
 	 * @return
 	 */

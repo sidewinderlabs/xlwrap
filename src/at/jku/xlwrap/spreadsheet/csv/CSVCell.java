@@ -26,6 +26,7 @@ import at.jku.xlwrap.map.expr.val.E_Date;
 import at.jku.xlwrap.spreadsheet.Cell;
 import at.jku.xlwrap.spreadsheet.FormatAnnotation;
 import at.jku.xlwrap.spreadsheet.TypeAnnotation;
+import java.text.SimpleDateFormat;
 
 /**
  * @author dorgon
@@ -71,6 +72,12 @@ public class CSVCell implements Cell {
 	}
 
 	@Override
+	public String getDateFormat() throws XLWrapException {
+            //TODO: Work out a fancier way to get more than the local default
+            return (new SimpleDateFormat()).toLocalizedPattern();
+        }
+
+        @Override
 	public double getDouble() throws XLWrapException {
 		try {
 			return Double.parseDouble(lexValue);
