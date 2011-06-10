@@ -15,6 +15,7 @@
  */
 package at.jku.xlwrap.spreadsheet.excel;
 
+import at.jku.xlwrap.common.XLWrapException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -55,8 +56,12 @@ public class ExcelWorkbook implements Workbook {
 	}
 
 	@Override
-	public Sheet getSheet(String sheetName) {
+	public Sheet getSheet(String sheetName) throws XLWrapException {
+            try{
 		return new ExcelSheet(wb.getSheet(sheetName), file);
+            } catch (Exception e){
+                throw new  XLWrapException ("Unable to get sheet " + sheetName + " form file " + file, e);
+            }
 	}
 
 	@Override
