@@ -51,8 +51,8 @@ public class ExcelWorkbook implements Workbook {
 	}
 	
 	@Override
-	public Sheet getSheet(int sheetNum) {
-		return new ExcelSheet(wb.getSheet(sheetNum), file);
+	public Sheet getSheet(int sheetNum) throws XLWrapException {
+            return new ExcelSheet(wb.getSheet(sheetNum), file);
 	}
 
 	@Override

@@ -15,6 +15,7 @@
  */
 package at.jku.xlwrap.spreadsheet.excel;
 
+import at.jku.xlwrap.common.XLWrapException;
 import at.jku.xlwrap.spreadsheet.Cell;
 import at.jku.xlwrap.spreadsheet.Sheet;
 import at.jku.xlwrap.spreadsheet.XLWrapEOFException;
@@ -30,9 +31,12 @@ public class ExcelSheet implements Sheet {
 	/**
 	 * @param sheet
 	 */
-	public ExcelSheet(jxl.Sheet sheet, String file) {
-		this.sheet = sheet;
-		this.file = file;
+	public ExcelSheet(jxl.Sheet sheet, String file) throws XLWrapException {
+            if (sheet == null){
+                throw new XLWrapException("Attempting to create a sheet based on a null jxl.Sheet");
+            }
+            this.sheet = sheet;
+            this.file = file;
 	}
 
 	@Override
