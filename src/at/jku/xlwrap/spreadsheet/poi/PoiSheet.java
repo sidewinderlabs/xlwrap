@@ -73,7 +73,8 @@ public class PoiSheet implements Sheet {
 
     @Override
     public int getRows() {
-        return sheet.getLastRowNum();
+        //Last row is zero based so add 1
+        return sheet.getLastRowNum() + 1;
     }
 
     @Override
