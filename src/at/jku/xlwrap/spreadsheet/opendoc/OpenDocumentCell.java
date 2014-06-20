@@ -28,6 +28,8 @@ import at.jku.xlwrap.common.XLWrapException;
 import at.jku.xlwrap.spreadsheet.Cell;
 import at.jku.xlwrap.spreadsheet.FormatAnnotation;
 import at.jku.xlwrap.spreadsheet.TypeAnnotation;
+import java.text.SimpleDateFormat;
+import org.jopendocument.dom.spreadsheet.CellStyle;
 
 /**
  * @author dorgon
@@ -64,6 +66,14 @@ public class OpenDocumentCell implements Cell {
 	public Date getDate() throws XLWrapException {
 		return (Date) cell.getValue();
 	}
+
+	@Override
+	public String getDateFormat() throws XLWrapException {
+            //CellStyle cellStyle = cell.getStyle();
+            //But then what?
+            //TODO: Work out a fancier way to get more than the local default
+            return (new SimpleDateFormat()).toLocalizedPattern();
+        }
 
 	@Override
 	public double getDouble() throws XLWrapException {

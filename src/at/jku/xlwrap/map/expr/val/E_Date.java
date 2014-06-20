@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import at.jku.xlwrap.map.expr.XLExpr;
+import java.util.GregorianCalendar;
 
 /**
  * @author dorgon
@@ -54,7 +55,17 @@ public class E_Date extends XLExprValue<Date> {
 	 * @throws ParseException
 	 */
 	public static Date parse(String date) throws ParseException {
+            try {
 		return DATE_TIME.parse(date).toDate();
+            } catch (Exception e){
+                //Ok now lets try it as a day in numbers.
+                int days = Integer.parseInt(date);
+                if (days > 60){
+                    days--; //Fix the Excell bug of counting none existing 29 Febuary 1900 as day 60
+                }
+                GregorianCalendar calendar = new GregorianCalendar (1900, 0, days, 0 , 0, 0);
+                return calendar.getTime();
+            }
 	}
 	
 	@Override
@@ -62,4 +73,18 @@ public class E_Date extends XLExprValue<Date> {
 		return new E_Date((Date) value.clone());
 	}
 
+    public static void main(String[] args) throws ParseException {
+        Date date = parse ("1");
+        System.out.println(date);
+        date = parse ("100");
+        System.out.println(date);
+        date = parse ("40337");
+        System.out.println(date);
+        date = parse ("2345");
+        System.out.println(date);
+        date = parse ("12345");
+        System.out.println(date);
+        date = parse ("40338");
+        System.out.println(date);
+    }
 }

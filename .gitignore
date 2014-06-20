@@ -1,1 +1,14 @@
-build
+#Ignored Files
+#netbeans files
+build.xml
+manifest.mf
+nbbuild.xml
+
+#Ignore directories
+#netbeans files
+nbproject/
+#Built stuff
+build/
+dist/
+#Output 
+output/

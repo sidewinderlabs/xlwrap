@@ -34,6 +34,7 @@ import at.jku.xlwrap.common.XLWrapException;
 import at.jku.xlwrap.spreadsheet.Cell;
 import at.jku.xlwrap.spreadsheet.FormatAnnotation;
 import at.jku.xlwrap.spreadsheet.TypeAnnotation;
+import java.text.SimpleDateFormat;
 
 /**
  * @author dorgon
@@ -62,8 +63,15 @@ public class ExcelCell implements Cell {
 
 	@Override
 	public Date getDate() throws XLWrapException {
-		return ((DateCell) cell).getDate();
+             return ((DateCell) cell).getDate();
 	}
+
+	public String getDateFormat() throws XLWrapException {
+            DateCell dateCell = (DateCell) cell;
+            SimpleDateFormat simpleDateFormat = (SimpleDateFormat) dateCell.getDateFormat();
+            return simpleDateFormat.toLocalizedPattern();
+        }
+
 
 	@Override
 	public double getDouble() throws XLWrapException {
